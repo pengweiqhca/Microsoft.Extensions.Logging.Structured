@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
 using Xunit;
+using Microsoft.Extensions.Logging.Configuration;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
 {
@@ -29,7 +30,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             using var provider = services.BuildServiceProvider();
 
-            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka);
+            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
 
             Assert.NotNull(options.ProducerConfig);
             Assert.Equal(CompressionType.Gzip, options.ProducerConfig.CompressionType);
@@ -41,17 +42,20 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         {
             var services = new ServiceCollection();
 
-            services.AddLogging(lb => lb.AddKafka("wcf.tuhu.work:19200", "test").AddLayout("test", new DateTimeOffsetLayout()));
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration();
+                lb.AddKafka("wcf.tuhu.work:19200", "test").AddLayout("test", new DateTimeOffsetLayout());
+            });
 
             using var provider = services.BuildServiceProvider();
 
-
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            Assert.IsAssignableFrom<StructuredLoggerProvider>(loggerProvider);
+            Assert.IsAssignableFrom<StructuredLoggerProvider<KafkaLoggingOptions>>(loggerProvider);
 
             Assert.Equal(KafkaConstants.Kafka, loggerProvider.GetType().GetCustomAttribute<ProviderAliasAttribute>()?.Alias);
 
-            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider) loggerProvider).Output);
+            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider<KafkaLoggingOptions>) loggerProvider).Output);
         }
     }
 }
