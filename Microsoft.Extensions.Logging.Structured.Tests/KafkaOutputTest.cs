@@ -1,8 +1,12 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Structured.Kafka;
 using Microsoft.Extensions.Options;
+using Moq;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Xunit;
 
@@ -10,6 +14,14 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 {
     public class KafkaOutputTest
     {
+        public ConfigurationBuilder builder { get; set; }
+        public KafkaOutputTest()
+        {
+            builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json");
+        }
+
         [Fact]
         public void Not_Allow_Null()
         {
@@ -23,12 +35,14 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         [Fact]
         public void Gzip_And_DisableDeliveryReports()
         {
+            var config = builder.Build().GetSection("Logging");
             var services = new ServiceCollection();
-
-            services.AddLogging(lb => lb.AddKafka());
-
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(config);
+                lb.AddKafka() ;
+            });
             using var provider = services.BuildServiceProvider();
-
             var options = provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka);
 
             Assert.NotNull(options.ProducerConfig);
@@ -40,8 +54,13 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         public void Output_Is_Kafka()
         {
             var services = new ServiceCollection();
-
-            services.AddLogging(lb => lb.AddKafka("wcf.tuhu.work:19200", "test").AddLayout("test", new DateTimeOffsetLayout()));
+            var config = builder.Build().GetSection("Logging");
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(config);
+                lb.AddKafka()
+                 .AddLayout("test", new DateTimeOffsetLayout());
+            });
 
             using var provider = services.BuildServiceProvider();
 
@@ -51,7 +70,44 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             Assert.Equal(KafkaConstants.Kafka, loggerProvider.GetType().GetCustomAttribute<ProviderAliasAttribute>()?.Alias);
 
-            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider) loggerProvider).Output);
+            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider)loggerProvider).Output);
+        }
+
+        [Fact]
+        public void KafkaConfiguretion()
+        {
+            var services = new ServiceCollection();
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {$"Logging:{KafkaConstants.Kafka}:Topic", "abc"}
+                }).Build().GetSection("Logging"));
+                lb.AddKafka()
+                    .AddLayout("test", new DateTimeOffsetLayout());
+            });
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.Equal("abc", provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka).Topic);
+        }
+
+        [Fact]
+        public void KafkaConfiguretionFromAppsettings()
+        {
+            var config = builder.Build().GetSection("Logging");
+            var services = new ServiceCollection();
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(config);
+                lb.AddKafka()
+                 .AddLayout("test", new DateTimeOffsetLayout());
+            });
+
+            using var provider = services.BuildServiceProvider();
+            var ss = provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka);
+            Assert.Equal(KafkaConstants.Kafka, ss.Topic);
+            Assert.Equal("wcf.tuhu.work:19092", ss.ProducerConfig.BootstrapServers);
         }
     }
 }
