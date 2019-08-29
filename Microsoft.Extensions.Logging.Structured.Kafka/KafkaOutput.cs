@@ -1,5 +1,4 @@
 ﻿using Confluent.Kafka;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +10,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
     public class KafkaOutput : BufferedOutput
     {
-        private readonly KafkaOutputOptions _options;
+        private readonly KafkaLoggingOptions _options;
         private readonly IProducer<string, object> _producer;
 
         private static readonly Headers Headers = new Headers
@@ -19,7 +18,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             {"Content-Type", Encoding.UTF8.GetBytes("application/json;charset=UTF-8")}
         };
 
-        public KafkaOutput(KafkaOutputOptions options) : base(options.BufferedOutputOptions)
+        public KafkaOutput(KafkaLoggingOptions options) : base(options.BufferedOutputOptions)
         {
             _options = options;
             _producer = new ProducerBuilder<string, object>(_options.ProducerConfig)

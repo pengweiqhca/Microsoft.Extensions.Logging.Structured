@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Structured.Kafka;
 using Microsoft.Extensions.Options;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +42,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 lb.AddKafka() ;
             });
             using var provider = services.BuildServiceProvider();
-            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka);
+
+            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
 
             Assert.NotNull(options.ProducerConfig);
             Assert.Equal(CompressionType.Gzip, options.ProducerConfig.CompressionType);
@@ -64,13 +64,12 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             using var provider = services.BuildServiceProvider();
 
-
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            Assert.IsAssignableFrom<StructuredLoggerProvider>(loggerProvider);
+            Assert.IsAssignableFrom<StructuredLoggerProvider<KafkaLoggingOptions>>(loggerProvider);
 
             Assert.Equal(KafkaConstants.Kafka, loggerProvider.GetType().GetCustomAttribute<ProviderAliasAttribute>()?.Alias);
 
-            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider)loggerProvider).Output);
+            Assert.IsType<KafkaOutput>(((StructuredLoggerProvider<KafkaLoggingOptions>) loggerProvider).Output);
         }
 
         [Fact]
@@ -89,7 +88,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             using var provider = services.BuildServiceProvider();
 
-            Assert.Equal("abc", provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka).Topic);
+            Assert.Equal("abc", provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka).Topic);
         }
 
         [Fact]
@@ -105,7 +104,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             });
 
             using var provider = services.BuildServiceProvider();
-            var ss = provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(KafkaConstants.Kafka);
+            var ss = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
             Assert.Equal(KafkaConstants.Kafka, ss.Topic);
             Assert.Equal("wcf.tuhu.work:19092", ss.ProducerConfig.BootstrapServers);
         }

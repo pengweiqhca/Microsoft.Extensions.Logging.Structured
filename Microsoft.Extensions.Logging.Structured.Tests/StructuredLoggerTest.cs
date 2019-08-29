@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -26,7 +27,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 var moq = new Mock<IOutput>();
                 moq.Setup(o => o.Write(It.IsAny<IReadOnlyDictionary<string, object?>>())).Callback<IReadOnlyDictionary<string, object?>>(log => list.Add(log));
 
-                lb.AddStructuredLog(key)
+                lb.AddStructuredLog<StructuredLoggingOptions>(key)
                     .SetOutput(moq.Object)
                     .AddLayout(key, new DateTimeOffsetLayout());
             });
@@ -56,7 +57,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 var moq = new Mock<IOutput>();
                 moq.Setup(o => o.Write(It.IsAny<IReadOnlyDictionary<string, object?>>())).Callback<IReadOnlyDictionary<string, object?>>(log => list.Add(log));
 
-                lb.AddStructuredLog("test")
+                lb.AddStructuredLog<StructuredLoggingOptions>("test")
                     .SetOutput(moq.Object)
                     .AddLayout(key, new TestLayout());
             });
@@ -77,6 +78,27 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.Equal(key, loggingEvent.Message);
             Assert.Equal(typeof(StructuredLoggerTest).FullName, loggingEvent.CategoryName);
             Assert.Equal(key, loggingEvent.RenderedMessage);
+        }
+
+        [Fact]
+        public void LayoutFromConfiguration()
+        {
+            var key = Guid.NewGuid().ToString("N");
+
+            var services = new ServiceCollection();
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {$"Logging:{key}:Layout:{key}", typeof(DateTimeOffsetLayout).FullName}
+                }).Build().GetSection("Logging"));
+
+                lb.AddStructuredLog<StructuredLoggingOptions>(key);
+            });
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.NotNull(provider.GetRequiredService<IOptionsSnapshot<StructuredLoggingOptions>>().Get(key).Layouts);
         }
 
         private class TestLayout : ILayout

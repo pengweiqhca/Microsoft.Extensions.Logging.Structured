@@ -1,15 +1,14 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using System;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
     public static class LoggingBuilderExtensions
     {
-        public static IStructuredLoggingBuilder AddKafka(this ILoggingBuilder builder, string kafkaServer, string topic) => builder.AddKafka(KafkaConstants.Kafka, kafkaServer, topic);
+        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string kafkaServer, string topic) => builder.AddKafka(KafkaConstants.Kafka, kafkaServer, topic);
 
-        public static IStructuredLoggingBuilder AddKafka(this ILoggingBuilder builder, string name, string kafkaServer, string topic)
+        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name, string kafkaServer, string topic)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
@@ -23,25 +22,25 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             });
         }
 
-        public static IStructuredLoggingBuilder AddKafka(this ILoggingBuilder builder,
-            Action<KafkaOutputOptions>? configureAction = null) =>
+        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder,
+            Action<KafkaLoggingOptions>? configureAction = null) =>
             builder.AddKafka(KafkaConstants.Kafka, configureAction);
 
-        public static IStructuredLoggingBuilder AddKafka(this ILoggingBuilder builder, string name,
-            Action<KafkaOutputOptions>? configureAction = null)
+        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name,
+            Action<KafkaLoggingOptions>? configureAction = null)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             if (configureAction != null) builder.Services.Configure(name, configureAction);
 
-            builder.Services.Configure<KafkaOutputOptions>(name, options =>
+            builder.Services.Configure<KafkaLoggingOptions>(name, options =>
             {
                 options.ProducerConfig.CompressionType = CompressionType.Gzip;
                 options.ProducerConfig.EnableDeliveryReports = false;
             });
 
-            return builder.AddStructuredLog(name)
-                .SetOutput((name2, provider) => new KafkaOutput(provider.GetRequiredService<IOptionsSnapshot<KafkaOutputOptions>>().Get(name2)));
+            return builder.AddStructuredLog<KafkaLoggingOptions>(name)
+                .SetOutput((options, provider) => new KafkaOutput(options));
         }
     }
 }

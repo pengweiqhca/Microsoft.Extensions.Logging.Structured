@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
-    public class KafkaOutputOptions
+    public class KafkaLoggingOptions : StructuredLoggingOptions
     {
         public string Topic { get; set; } = default!;
 
