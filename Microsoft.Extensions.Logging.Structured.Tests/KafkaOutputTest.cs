@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             using var provider = services.BuildServiceProvider();
             var ss = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
             Assert.Equal(KafkaConstants.Kafka, ss.Topic);
-            Assert.Equal("wcf.tuhu.work:19092", ss.ProducerConfig.BootstrapServers);
+            Assert.Equal("localhost:19092", ss.ProducerConfig.BootstrapServers);
         }
     }
 }

@@ -12,7 +12,7 @@ In your testing project, add the following framework
 
 ```cs
 ILoggingBuilder lb = ....;
-lb.AddKafka("wcf.tuhu.work:19200", "test")
+lb.AddKafka("localhost:19200", "test")
     .AddLayout("DateTime", new DateTimeOffsetLayout())
     //.AddLayout("XXX", new YYYLayout())
     .AddLayout("Exception", new ExceptionLayout());
