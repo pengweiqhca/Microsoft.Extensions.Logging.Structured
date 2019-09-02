@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured
 {
     public readonly ref struct LoggingEvent
     {
-        private readonly IExternalScopeProvider? _scopeProvider;
+        private readonly Lazy<IEnumerable<object>> _scope;
 
         public LoggingEvent(DateTimeOffset timeStamp, string categoryName, LogLevel logLevel,
             EventId eventId, object? message, string renderedMessage, Exception? exception, IExternalScopeProvider? scopeProvider)
@@ -15,8 +16,18 @@ namespace Microsoft.Extensions.Logging.Structured
             Message = message;
             Exception = exception;
             RenderedMessage = renderedMessage;
-            _scopeProvider = scopeProvider;
             TimeStamp = timeStamp;
+
+            if (scopeProvider == null) _scope = new Lazy<IEnumerable<object>>(Array.Empty<object>);
+            else
+                _scope = new Lazy<IEnumerable<object>>(() =>
+                {
+                    var list = new List<object>();
+
+                    scopeProvider.ForEachScope((obj, state) => ((List<object>)state).Add(obj), list);
+
+                    return list.AsReadOnly();
+                });
         }
 
         public DateTimeOffset TimeStamp { get; }
@@ -26,7 +37,6 @@ namespace Microsoft.Extensions.Logging.Structured
         public object? Message { get; }
         public Exception? Exception { get; }
         public string RenderedMessage { get; }
-
-        public void ForEachScope(Action<object> callback) => _scopeProvider?.ForEachScope((obj, _) => callback(_), "");
+        public IEnumerable<object> Scope => _scope.Value;
     }
 }

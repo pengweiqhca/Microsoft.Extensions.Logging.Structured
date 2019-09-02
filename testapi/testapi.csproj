@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured.Kafka\Microsoft.Extensions.Logging.Structured.Kafka.csproj" />
+    <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured\Microsoft.Extensions.Logging.Structured.csproj" />
+  </ItemGroup>
+
+</Project>
