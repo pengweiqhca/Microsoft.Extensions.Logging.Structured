@@ -8,6 +8,8 @@ namespace Microsoft.Extensions.Logging.Structured
         private Dictionary<string, string> _layoutTypes = new Dictionary<string, string>();
         public Dictionary<string, ILayout> Layouts { get; } = new Dictionary<string, ILayout>(StringComparer.OrdinalIgnoreCase);
 
+        public ILogProcessor Processor { get; set; }
+
         [Obsolete("Used by configuration")]
         public Dictionary<string, string> Layout
         {
@@ -34,5 +36,9 @@ namespace Microsoft.Extensions.Logging.Structured
         public IOutput Output { get; set; } = default!;
 
         public IStateRenderer StateRenderer { get; set; } = new DefaultStateRenderer();
+    }
+    public interface ILogProcessor
+    {
+        IDictionary<string, object> Process(IDictionary<string, object> log);
     }
 }
