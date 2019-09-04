@@ -24,11 +24,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             _producer = new ProducerBuilder<string, object>(_options.ProducerConfig)
                 .SetKeySerializer(Serializers.Utf8)
                 .SetValueSerializer(new ObjectSerializer(_options.JsonSerializerOptions))
-                .SetErrorHandler(
-                (_, error) =>
-                {
-                    Trace.TraceError(JsonConvert.SerializeObject(error));
-                })
+                .SetErrorHandler((_, error) =>Trace.TraceError(JsonConvert.SerializeObject(error)))
                 .Build();
         }
 

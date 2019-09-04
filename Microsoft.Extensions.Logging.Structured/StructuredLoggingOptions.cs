@@ -35,8 +35,4 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public IStateRenderer StateRenderer { get; set; } = new DefaultStateRenderer();
     }
-    public interface ILogProcessor
-    {
-        IDictionary<string, object> Process(IDictionary<string, object> log);
-    }
 }

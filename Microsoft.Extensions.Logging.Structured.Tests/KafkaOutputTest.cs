@@ -11,26 +11,6 @@ using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
 {
-    public class LogProcessor : ILogProcessor
-    {
-        public IDictionary<string, object> Process(IDictionary<string, object> log)
-        {
-            List<string> keys = new List<string>(log.Keys);
-            foreach (string key in keys)
-            {
-                if (string.Compare(key, "message", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(key, "msg", StringComparison.OrdinalIgnoreCase) == 0 &&
-                    log[key] is string msg && !string.IsNullOrWhiteSpace(msg) &&
-                    (msg.IndexOf("password", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     msg.IndexOf("passwd", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     msg.IndexOf("pwd", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     msg.IndexOf("secret", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     msg.IndexOf("密码", StringComparison.OrdinalIgnoreCase) >= 0))
-                    log[key] = "内容含有敏感数据，请不要在日志中记录";
-            }
-            return log;
-        }
-    }
-
     public class KafkaOutputTest
     {
         public ConfigurationBuilder builder { get; set; }
