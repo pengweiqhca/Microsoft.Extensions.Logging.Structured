@@ -1,5 +1,5 @@
 ﻿using Confluent.Kafka;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
@@ -11,9 +11,9 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
 
         public BufferedOutputOptions BufferedOutputOptions { get; } = new BufferedOutputOptions();
 
-        public JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
+        public JsonSerializerSettings JsonSerializerOptions { get; } = new JsonSerializerSettings
         {
-            IgnoreNullValues = true
+            NullValueHandling = NullValueHandling.Ignore
         };
     }
 }

@@ -33,7 +33,6 @@ namespace Microsoft.Extensions.Logging.Structured
                 {
                     dictionary[layout.Key] = layout.Value.Format(loggingEvent);
                 }
-
                 Log(dictionary);
             }
             catch

@@ -1,9 +1,9 @@
 ﻿using Confluent.Kafka;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             _producer = new ProducerBuilder<string, object>(_options.ProducerConfig)
                 .SetKeySerializer(Serializers.Utf8)
                 .SetValueSerializer(new ObjectSerializer(_options.JsonSerializerOptions))
-                .SetErrorHandler((_, error) => Trace.TraceError(JsonSerializer.Serialize(error)))
+                .SetErrorHandler((_, error) =>Trace.TraceError(JsonConvert.SerializeObject(error)))
                 .Build();
         }
 
@@ -49,12 +49,14 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
 
         private class ObjectSerializer : ISerializer<object>
         {
-            private readonly JsonSerializerOptions _options;
+            private readonly JsonSerializerSettings _options;
 
-            public ObjectSerializer(JsonSerializerOptions options) => _options = options;
+            public ObjectSerializer(JsonSerializerSettings options) => _options = options;
 
-            public byte[] Serialize(object data, SerializationContext context) =>
-                JsonSerializer.SerializeToUtf8Bytes(data, _options);
+            public byte[] Serialize(object data, SerializationContext context)
+            {
+                return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, _options));
+            }
         }
     }
 }

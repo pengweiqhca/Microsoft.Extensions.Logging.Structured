@@ -7,11 +7,10 @@
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka.StrongName" Version="1.1.0" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview8.19405.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured\Microsoft.Extensions.Logging.Structured.csproj" />
   </ItemGroup>
-
 </Project>

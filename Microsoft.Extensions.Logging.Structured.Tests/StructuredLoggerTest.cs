@@ -30,7 +30,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
                 lb.AddStructuredLog<StructuredLoggingOptions>(key)
                     .SetOutput(moq.Object)
-                    .AddLayout(key, new DateTimeOffsetLayout());
+                    .AddLayout(key, new DateTimeOffsetLayout())
+                    .AddLayout("msg",new MessageLayout());
             });
 
             using var provider = services.BuildServiceProvider();
@@ -65,10 +66,11 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             using var provider = services.BuildServiceProvider();
             var logger = provider.GetRequiredService<ILogger<StructuredLoggerTest>>();
-            logger.BeginScope(provider);
+            var logger1 = provider.GetRequiredService<ILogger>();
+            logger1.BeginScope(provider);
+            //logger.BeginScope(provider);
             var ex = new Exception(key);
             logger.LogInformation(new EventId(3), ex, key);
-
             var loggingEvent = (LoggingEventWrapper?)list[0][key];
 
             Assert.NotNull(loggingEvent);
@@ -79,7 +81,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.Equal(key, loggingEvent.Message);
             Assert.Equal(typeof(StructuredLoggerTest).FullName, loggingEvent.CategoryName);
             Assert.Equal(key, loggingEvent.RenderedMessage);
-            Assert.Equal(provider, loggingEvent.Scope.FirstOrDefault());
+            var s = loggingEvent.Scope.FirstOrDefault();
+            Assert.Equal(provider, s);
         }
 
         [Fact]
