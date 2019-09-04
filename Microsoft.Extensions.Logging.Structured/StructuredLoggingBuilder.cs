@@ -83,14 +83,5 @@ namespace Microsoft.Extensions.Logging.Structured
 
             return builder;
         }
-
-        public static IStructuredLoggingBuilder<TOptions> AddProcessor<TOptions>(this IStructuredLoggingBuilder<TOptions> builder, ILogProcessor logProcessor)
-            where TOptions : StructuredLoggingOptions, new()
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (logProcessor == null) throw new ArgumentNullException(nameof(logProcessor));
-            builder.Services.Configure<TOptions>(builder.Alias, options => options.Processor = logProcessor);
-            return builder;
-        }
     }
 }

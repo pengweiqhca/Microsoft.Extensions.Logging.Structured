@@ -8,8 +8,6 @@ namespace Microsoft.Extensions.Logging.Structured
         private Dictionary<string, string> _layoutTypes = new Dictionary<string, string>();
         public Dictionary<string, ILayout> Layouts { get; } = new Dictionary<string, ILayout>(StringComparer.OrdinalIgnoreCase);
 
-        public ILogProcessor Processor { get; set; }
-
         [Obsolete("Used by configuration")]
         public Dictionary<string, string> Layout
         {

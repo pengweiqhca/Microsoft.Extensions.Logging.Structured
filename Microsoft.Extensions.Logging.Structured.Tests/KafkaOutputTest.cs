@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka().AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout()).AddProcessor(new LogProcessor());
+                lb.AddKafka().AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout());
             });
             using var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
