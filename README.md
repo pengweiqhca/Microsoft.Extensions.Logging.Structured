@@ -3,10 +3,10 @@
 How to use
 =============
 
-Install the [Nuget](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Structured.Kafka) package.
+Install the [Nuget](https://www.nuget.org/packages/Tuhu.Extensions.Logging.Structured.Kafka) package.
 
 ``` PS
-Install-Package Microsoft.Extensions.Logging.Structured.Kafka
+Install-Package Tuhu.Extensions.Logging.Structured.Kafka
 ```
 In your testing project, add the following framework
 
