@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
-namespace Microsoft.Extensions.Logging.Structured.Kafka
+namespace Tuhu.Extensions.Logging.Structured.Kafka
 {
     public class KafkaOutput : BufferedOutput
     {

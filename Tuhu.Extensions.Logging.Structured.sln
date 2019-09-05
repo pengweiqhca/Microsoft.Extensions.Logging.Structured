@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Logging.Structured", "Microsoft.Extensions.Logging.Structured\Microsoft.Extensions.Logging.Structured.csproj", "{E317E8DB-BD57-4A6F-B3A8-6BF1E6EA444B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tuhu.Extensions.Logging.Structured", "Tuhu.Extensions.Logging.Structured\Tuhu.Extensions.Logging.Structured.csproj", "{E317E8DB-BD57-4A6F-B3A8-6BF1E6EA444B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Logging.Structured.Kafka", "Microsoft.Extensions.Logging.Structured.Kafka\Microsoft.Extensions.Logging.Structured.Kafka.csproj", "{D2DF8499-0154-4E64-8A2D-A61EA7ED84A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tuhu.Extensions.Logging.Structured.Kafka", "Tuhu.Extensions.Logging.Structured.Kafka\Tuhu.Extensions.Logging.Structured.Kafka.csproj", "{D2DF8499-0154-4E64-8A2D-A61EA7ED84A1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6E4EA700-4D0B-44EF-80B0-51B1C663294A}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Logging.Structured.Tests", "Microsoft.Extensions.Logging.Structured.Tests\Microsoft.Extensions.Logging.Structured.Tests.csproj", "{1E1EC539-3666-4806-BE81-1A6803C10970}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tuhu.Extensions.Logging.Structured.Tests", "Tuhu.Extensions.Logging.Structured.Tests\Tuhu.Extensions.Logging.Structured.Tests.csproj", "{1E1EC539-3666-4806-BE81-1A6803C10970}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

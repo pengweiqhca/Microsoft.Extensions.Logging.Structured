@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Tuhu.Extensions.Logging.Structured
 {
     public abstract class StructuredLoggerProvider<TOptions> : ILoggerProvider, ISupportExternalScope
         where TOptions : StructuredLoggingOptions, new()

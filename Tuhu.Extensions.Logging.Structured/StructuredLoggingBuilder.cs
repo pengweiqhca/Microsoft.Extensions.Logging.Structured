@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Tuhu.Extensions.Logging.Structured
 {
     public interface IStructuredLoggingBuilder<TOptions> where TOptions : StructuredLoggingOptions, new()
     {

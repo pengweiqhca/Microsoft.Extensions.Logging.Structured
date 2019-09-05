@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Tuhu.Extensions.Logging.Structured
 {
     public class StructuredLogger : ILogger, IDisposable
     {

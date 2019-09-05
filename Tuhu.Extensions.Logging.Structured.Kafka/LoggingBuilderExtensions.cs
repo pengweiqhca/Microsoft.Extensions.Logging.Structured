@@ -1,8 +1,9 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 
-namespace Microsoft.Extensions.Logging.Structured.Kafka
+namespace Tuhu.Extensions.Logging.Structured.Kafka
 {
     public static class LoggingBuilderExtensions
     {

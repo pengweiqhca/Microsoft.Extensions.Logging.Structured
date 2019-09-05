@@ -1,15 +1,16 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Structured.Kafka;
+using Tuhu.Extensions.Logging.Structured.Kafka;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Extensions.Logging.Structured.Tests
+namespace Tuhu.Extensions.Logging.Structured.Tests
 {
     public class KafkaOutputTest
     {

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Extensions.Logging.Structured.Kafka
+﻿namespace Tuhu.Extensions.Logging.Structured.Kafka
 {
     public static class KafkaConstants
     {

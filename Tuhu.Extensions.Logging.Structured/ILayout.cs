@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Tuhu.Extensions.Logging.Structured
 {
     public interface ILayout
     {

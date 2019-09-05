@@ -1,7 +1,7 @@
 ﻿using Confluent.Kafka;
 using Newtonsoft.Json;
 
-namespace Microsoft.Extensions.Logging.Structured.Kafka
+namespace Tuhu.Extensions.Logging.Structured.Kafka
 {
     public class KafkaLoggingOptions : StructuredLoggingOptions
     {

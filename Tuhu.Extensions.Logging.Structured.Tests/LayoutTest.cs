@@ -1,8 +1,9 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
 using System;
 using Xunit;
 
-namespace Microsoft.Extensions.Logging.Structured.Tests
+namespace Tuhu.Extensions.Logging.Structured.Tests
 {
 #nullable disable
     public class LayoutTest

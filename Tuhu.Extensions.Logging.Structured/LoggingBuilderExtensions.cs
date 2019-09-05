@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Configuration;
-using Microsoft.Extensions.Logging.Structured;
+using Tuhu.Extensions.Logging.Structured;
 using Microsoft.Extensions.Options;
 using System;
 

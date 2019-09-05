@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Tuhu.Extensions.Logging.Structured
 {
     public abstract class BufferedOutput : IOutput, IDisposable
     {

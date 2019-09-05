@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured.Kafka\Microsoft.Extensions.Logging.Structured.Kafka.csproj" />
+    <ProjectReference Include="..\Tuhu.Extensions.Logging.Structured.Kafka\Tuhu.Extensions.Logging.Structured.Kafka.csproj" />
   </ItemGroup>
 
   <ItemGroup>

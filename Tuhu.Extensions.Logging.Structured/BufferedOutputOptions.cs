@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Extensions.Logging.Structured
+﻿namespace Tuhu.Extensions.Logging.Structured
 {
     public class BufferedOutputOptions
     {
