@@ -15,12 +15,12 @@ namespace Microsoft.Extensions.Logging
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (string.IsNullOrWhiteSpace(alias)) throw new ArgumentNullException(nameof(alias));
 
-            if (configureAction != null) builder.Services.Configure(alias, configureAction);
-
             builder.AddConfiguration();
 
             builder.Services.AddTransient(typeof(ILoggerProvider), StructuredTypeHelper.CreateStructuredLoggerProviderSubclass<TOptions>(alias))
                 .AddTransient(typeof(IConfigureOptions<TOptions>), StructuredTypeHelper.CreateConfigureOptionsType<TOptions>(alias));
+
+            if (configureAction != null) builder.Services.Configure(alias, configureAction);
 
             return new StructuredLoggingBuilder<TOptions>(builder, alias);
         }

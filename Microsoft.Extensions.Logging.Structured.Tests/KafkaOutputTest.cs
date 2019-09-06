@@ -13,12 +13,11 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 {
     public class KafkaOutputTest
     {
-        public ConfigurationBuilder builder { get; set; }
+        public ConfigurationBuilder Builder { get; set; }
         public KafkaOutputTest()
         {
-            builder = new ConfigurationBuilder();
-            builder.SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json");
+            Builder = new ConfigurationBuilder();
+            Builder.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
         }
 
         [Fact]
@@ -34,7 +33,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         [Fact]
         public void Gzip_And_DisableDeliveryReports()
         {
-            var config = builder.Build().GetSection("Logging");
+            var config = Builder.Build().GetSection("Logging");
             var services = new ServiceCollection();
             services.AddLogging(lb =>
             {
@@ -48,19 +47,18 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             logger.LogInformation("idcardqqqq");
             Assert.NotNull(options.ProducerConfig);
             Assert.Equal(CompressionType.Gzip, options.ProducerConfig.CompressionType);
-            //Assert.False(options.ProducerConfig.EnableDeliveryReports);
+            Assert.False(options.ProducerConfig.EnableDeliveryReports);
         }
 
         [Fact]
         public void Output_Is_Kafka()
         {
             var services = new ServiceCollection();
-            var config = builder.Build().GetSection("Logging");
+            var config = Builder.Build().GetSection("Logging");
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka()
-                 .AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();
@@ -74,7 +72,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         }
 
         [Fact]
-        public void KafkaConfiguretion()
+        public void KafkaConfiguration()
         {
             var services = new ServiceCollection();
             services.AddLogging(lb =>
@@ -83,8 +81,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 {
                     {$"Logging:{KafkaConstants.Kafka}:Topic", "abc"}
                 }).Build().GetSection("Logging"));
-                lb.AddKafka()
-                    .AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();
@@ -93,15 +90,14 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         }
 
         [Fact]
-        public void KafkaConfiguretionFromAppsettings()
+        public void KafkaConfigurationFromAppSettings()
         {
-            var config = builder.Build().GetSection("Logging");
+            var config = Builder.Build().GetSection("Logging");
             var services = new ServiceCollection();
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka()
-                 .AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();
