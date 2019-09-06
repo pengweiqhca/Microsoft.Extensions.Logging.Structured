@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Options;
-using Xunit;
 using System.Linq;
+using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
 {
@@ -66,9 +66,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             using var provider = services.BuildServiceProvider();
             var logger = provider.GetRequiredService<ILogger<StructuredLoggerTest>>();
-            var logger1 = provider.GetRequiredService<ILogger>();
-            logger1.BeginScope(provider);
-            //logger.BeginScope(provider);
+            provider.GetRequiredService<ILoggerFactory>().CreateLogger("test").BeginScope(provider);
+
             var ex = new Exception(key);
             logger.LogInformation(new EventId(3), ex, key);
             var loggingEvent = (LoggingEventWrapper?)list[0][key];
@@ -81,8 +80,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.Equal(key, loggingEvent.Message);
             Assert.Equal(typeof(StructuredLoggerTest).FullName, loggingEvent.CategoryName);
             Assert.Equal(key, loggingEvent.RenderedMessage);
-            var s = loggingEvent.Scope.FirstOrDefault();
-            Assert.Equal(provider, s);
+            Assert.Equal(provider, loggingEvent.Scope.FirstOrDefault());
         }
 
         [Fact]
