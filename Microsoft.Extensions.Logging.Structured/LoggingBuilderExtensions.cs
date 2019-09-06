@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Logging
 {
     public static class LoggingBuilderExtensions
     {
-        public static StructuredLoggingBuilder<TOptions> AddStructuredLog<TOptions>(this ILoggingBuilder builder, string alias, Action<TOptions>? configureAction = null)
+        public static IStructuredLoggingBuilder<TOptions> AddStructuredLog<TOptions>(this ILoggingBuilder builder, string alias, Action<TOptions>? configureAction = null)
             where TOptions : StructuredLoggingOptions, new()
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
