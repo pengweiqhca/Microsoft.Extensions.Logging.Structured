@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         {
             var services = new ServiceCollection();
 
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>(null)));
+            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>(null!)));
             Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("")));
         }
 

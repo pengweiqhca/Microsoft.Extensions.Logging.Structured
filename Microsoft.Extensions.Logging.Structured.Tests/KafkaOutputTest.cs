@@ -24,10 +24,11 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         public void Not_Allow_Null()
         {
             var services = new ServiceCollection();
-
+#nullable disable
             Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka(null, "a", "b")));
             Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", null, "b")));
             Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", "b", null)));
+#nullable restore
         }
 
         [Fact]

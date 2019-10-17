@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using Xunit;
 
@@ -6,13 +7,13 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 {
     public class StructuredLoggingOptionsTest
     {
-        [Fact]
+        [Fact, Obsolete]
         public void Layout()
         {
             var options = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {"Logging:Test:Layout:A", typeof(DateTimeLayout).FullName},
+                    {"Logging:Test:Layout:A", typeof(DateTimeLayout).FullName!},
                     {"Logging:Test:Layout:B", "Abc"},
                 })
                 .Build().GetSection("Logging:Test")
@@ -24,7 +25,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.IsType<DateTimeLayout>(layout);
             Assert.True(options.Layouts.TryGetValue("B", out layout));
             Assert.IsType<ConstLayout>(layout);
-            Assert.Equal("Abc", ((ConstLayout)layout).Format(default));
+            Assert.Equal("Abc", ((ConstLayout)layout!).Format(default));
         }
     }
 }

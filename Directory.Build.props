@@ -16,13 +16,11 @@
     <RepositoryUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structured</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <SignAssembly>True</SignAssembly>
-    <PackageProjectUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structuredn</PackageProjectUrl>
-    <IsWindows Condition="$(OS.Contains('Win'))">true</IsWindows>
+    <PackageProjectUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structured</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2019.*" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-*" PrivateAssets="All" Condition="'$(IsWindows)' == ''" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-*" PrivateAssets="All"/>
   </ItemGroup>
 

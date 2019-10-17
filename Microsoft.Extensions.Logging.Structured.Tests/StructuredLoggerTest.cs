@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             var loggingEvent = (LoggingEventWrapper?)list[0][key];
 
             Assert.NotNull(loggingEvent);
-            Assert.True(loggingEvent.TimeStamp < DateTimeOffset.Now);
+            Assert.True(loggingEvent!.TimeStamp < DateTimeOffset.Now);
             Assert.Equal(LogLevel.Information, loggingEvent.LogLevel);
             Assert.Equal(3, loggingEvent.EventId.Id);
             Assert.Equal(ex, loggingEvent.Exception);
@@ -93,7 +93,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             {
                 lb.AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {$"Logging:{key}:Layout:{key}", typeof(DateTimeOffsetLayout).FullName}
+                    {$"Logging:{key}:Layout:{key}", typeof(DateTimeOffsetLayout).FullName!}
                 }).Build().GetSection("Logging"));
 
                 lb.AddStructuredLog<StructuredLoggingOptions>(key);

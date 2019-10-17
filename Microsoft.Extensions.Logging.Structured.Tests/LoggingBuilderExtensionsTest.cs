@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    {"Logging:Test:Layout:A", typeof(DateTimeLayout).FullName}
+                    {"Logging:Test:Layout:A", typeof(DateTimeLayout).FullName!}
                 })
                 .Build();
 
