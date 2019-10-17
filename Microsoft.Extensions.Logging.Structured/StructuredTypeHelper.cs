@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.Logging.Structured
                 ctor.Emit(OpCodes.Call, typeof(StructuredLoggerProvider<TOptions>).GetConstructor(parameterTypes));
                 ctor.Emit(OpCodes.Ret);
 
-                return AliasTypeCache[alias] = typeBuilder.CreateTypeInfo().AsType();
+                return AliasTypeCache[alias] = typeBuilder.CreateTypeInfo()!.AsType();
             }
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Extensions.Logging.Structured
                 ctor.Emit(OpCodes.Call, typeof(NamedConfigureFromConfigurationOptions<TOptions>).GetConstructor(new[] { typeof(string), typeof(IConfiguration) }));
                 ctor.Emit(OpCodes.Ret);
 
-                return AliasTypeCache[cacheKey] = typeBuilder.CreateTypeInfo().AsType();
+                return AliasTypeCache[cacheKey] = typeBuilder.CreateTypeInfo()!.AsType();
             }
         }
     }

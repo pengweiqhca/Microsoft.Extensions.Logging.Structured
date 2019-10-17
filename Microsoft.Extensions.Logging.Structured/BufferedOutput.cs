@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Microsoft.Extensions.Logging.Structured
 {
-    public abstract class BufferedOutput : IOutput, IDisposable
+    public abstract class BufferedOutput : IOutput
     {
         private readonly BufferedOutputOptions _options;
         private ConcurrentQueue<BufferedLog> _queue;
@@ -53,17 +53,16 @@ namespace Microsoft.Extensions.Logging.Structured
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_disposed) return;
+
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _timer.Dispose();
+                _timer.Dispose();
 
-                    Send((object?)null);
-                }
-
-                _disposed = true;
+                Send(null);
             }
+
+            _disposed = true;
         }
 
         public void Dispose()

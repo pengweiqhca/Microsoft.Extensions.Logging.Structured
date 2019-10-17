@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.Logging.Structured
                 {
                     var list = new List<object>();
 
-                    scopeProvider.ForEachScope((obj, state) => ((List<object>)state).Add(obj), list);
+                    scopeProvider.ForEachScope((obj, state) => state.Add(obj), list);
 
                     return list.AsReadOnly();
                 });
