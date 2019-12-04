@@ -32,8 +32,8 @@ namespace Microsoft.Extensions.Logging.Structured
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (output == null) throw new ArgumentNullException(nameof(output));
 
-            builder.Services.AddTransient<IConfigureOptions<TOptions>>(provider =>
-                new ConfigureNamedOptions<TOptions>(builder.Alias, options =>
+            builder.Services.AddTransient<IPostConfigureOptions<TOptions>>(provider =>
+                new PostConfigureOptions<TOptions>(builder.Alias, options =>
                     options.Output = output(options, provider)));
 
             return builder;

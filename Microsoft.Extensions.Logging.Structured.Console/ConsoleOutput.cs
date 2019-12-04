@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured.Console
 {
     public class ConsoleOutput : IOutput
     {
-        private readonly ConsoleLoggingOptions _options;
+        private readonly Func<IReadOnlyDictionary<string, object?>, string> _serializer;
 
-        public ConsoleOutput(ConsoleLoggingOptions options) => _options = options;
+        public ConsoleOutput(ConsoleLoggingOptions options) => _serializer = options.Serializer;
 
         public void Dispose() { }
 
-        public void Write(IReadOnlyDictionary<string, object?> logData) => System.Console.WriteLine(JsonConvert.SerializeObject(logData, _options.Settings));
+        public void Write(IReadOnlyDictionary<string, object?> logData) => System.Console.WriteLine(_serializer(logData));
     }
 }

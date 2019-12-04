@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured.Console
 {
     public class ConsoleLoggingOptions : StructuredLoggingOptions
     {
-        public JsonSerializerSettings? Settings { get; set; }
+        /// <summary>Such as JsonConvert.SerializeObject</summary>
+        public Func<IReadOnlyDictionary<string, object?>, string> Serializer { get; set; } = default!;
     }
 }

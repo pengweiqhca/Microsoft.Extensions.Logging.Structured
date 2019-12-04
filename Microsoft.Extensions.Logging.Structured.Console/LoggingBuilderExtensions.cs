@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured.Console
 {
@@ -16,20 +16,20 @@ namespace Microsoft.Extensions.Logging.Structured.Console
             return slb;
         }
 
-        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Action<JsonSerializerSettings> configureAction)
+        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Action<ConsoleLoggingOptions> configureAction)
         {
             if (configureAction == null) throw new ArgumentNullException(nameof(configureAction));
 
-            builder.Services.ConfigureAll<ConsoleLoggingOptions>(options => configureAction(options.Settings ??= new JsonSerializerSettings()));
+            builder.Services.ConfigureAll(configureAction);
 
             return builder.AddConsole();
         }
 
-        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, JsonSerializerSettings settings)
+        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Func<IReadOnlyDictionary<string, object?>, string> serializer)
         {
-            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
-            builder.Services.ConfigureAll<ConsoleLoggingOptions>(options => options.Settings = settings);
+            builder.Services.ConfigureAll<ConsoleLoggingOptions>(options => options.Serializer = serializer);
 
             return builder.AddConsole();
         }

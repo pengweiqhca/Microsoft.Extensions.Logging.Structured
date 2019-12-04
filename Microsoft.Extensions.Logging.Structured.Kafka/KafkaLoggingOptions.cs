@@ -1,5 +1,6 @@
 ﻿using Confluent.Kafka;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
@@ -7,13 +8,23 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
     {
         public string Topic { get; set; } = default!;
 
-        public ProducerConfig ProducerConfig { get; } = new ProducerConfig();
+        public ProducerConfig ProducerConfig { get; } = new ProducerConfig
+        {
+            CompressionType = CompressionType.Gzip,
+            MetadataRequestTimeoutMs = 5000,
+            TopicMetadataRefreshIntervalMs = 60000,
+            QueueBufferingMaxMessages = 10000,
+            EnableDeliveryReports = false
+        };
 
         public BufferedOutputOptions BufferedOutputOptions { get; } = new BufferedOutputOptions();
 
-        public JsonSerializerSettings JsonSerializerOptions { get; } = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore
-        };
+        /// <summary>Such as application/json;charset=UTF-8</summary>
+        public string? ContentType { get; set; }
+
+        /// <summary>Such as Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData))</summary>
+        public Func<IReadOnlyDictionary<string, object?>, byte[]> Serializer { get; set; } = default!;
+
+        public Action<Error>? KafkaErrorHandler { get; set; }
     }
 }

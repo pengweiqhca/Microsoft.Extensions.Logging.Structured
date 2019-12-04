@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Structured.Kafka;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -41,6 +43,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 {
                     o.Topic = "Abc";
                     o.ProducerConfig.EnableDeliveryReports = true;
+                    o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData));
                 }));
 
             using var provider = services.BuildServiceProvider();

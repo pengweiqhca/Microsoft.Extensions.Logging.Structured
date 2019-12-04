@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -39,7 +41,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka().AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout());
+                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                    .AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout());
             });
             using var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
@@ -59,7 +62,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                    .AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();
@@ -82,7 +86,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 {
                     {$"Logging:{KafkaConstants.Kafka}:Topic", "abc"}
                 }).Build().GetSection("Logging"));
-                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                    .AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();
@@ -98,7 +103,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka().AddLayout("test", new DateTimeOffsetLayout());
+                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                    .AddLayout("test", new DateTimeOffsetLayout());
             });
 
             using var provider = services.BuildServiceProvider();

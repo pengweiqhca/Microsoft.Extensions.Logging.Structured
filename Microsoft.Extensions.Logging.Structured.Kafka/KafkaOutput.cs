@@ -1,5 +1,4 @@
 ﻿using Confluent.Kafka;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,30 +10,43 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
     public class KafkaOutput : BufferedOutput
     {
         private readonly KafkaLoggingOptions _options;
-        private readonly IProducer<string, object> _producer;
+        private readonly IProducer<Guid, IReadOnlyDictionary<string, object?>> _producer;
 
-        private static readonly Headers Headers = new Headers
-        {
-            {"Content-Type", Encoding.UTF8.GetBytes("application/json;charset=UTF-8")}
-        };
+        private readonly Headers _headers = new Headers();
 
         public KafkaOutput(KafkaLoggingOptions options) : base(options.BufferedOutputOptions)
         {
+            if (string.IsNullOrWhiteSpace(options.Topic))
+                throw new ArgumentException("Must not empty", $"{nameof(options)}.{nameof(options.Topic)}");
+
+            if (options.Serializer == null)
+                throw new ArgumentException("Must not null", $"{nameof(options)}.{nameof(options.Serializer)}");
+
             _options = options;
-            _producer = new ProducerBuilder<string, object>(_options.ProducerConfig)
-                .SetKeySerializer(Serializers.Utf8)
-                .SetValueSerializer(new ObjectSerializer(_options.JsonSerializerOptions))
-                .SetErrorHandler((_, error) =>Trace.TraceError(JsonConvert.SerializeObject(error)))
-                .Build();
+
+            if (!string.IsNullOrWhiteSpace(_options.ContentType))
+                _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType));
+
+            var pb = new ProducerBuilder<Guid, IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
+                .SetKeySerializer(new GuiSerializer())
+                .SetValueSerializer(new ObjectSerializer(_options.Serializer));
+
+            if (_options.KafkaErrorHandler != null)
+            {
+                var handler = _options.KafkaErrorHandler;
+                pb.SetErrorHandler((_, error) => handler(error));
+            }
+
+            _producer = pb.Build();
         }
 
         protected override void Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken)
         {
             foreach (var log in logs)
-                _producer.ProduceAsync(_options.Topic, new Message<string, object>
+                _producer.ProduceAsync(_options.Topic, new Message<Guid, IReadOnlyDictionary<string, object?>>
                 {
-                    Headers = Headers,
-                    Key = Guid.NewGuid().ToString("N"),
+                    Headers = _headers,
+                    Key = Guid.NewGuid(),
                     Timestamp = new Timestamp(log.Now),
                     Value = log.Data,
                 });
@@ -47,16 +59,18 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             _producer.Dispose();
         }
 
-        private class ObjectSerializer : ISerializer<object>
+        private class GuiSerializer : ISerializer<Guid>
         {
-            private readonly JsonSerializerSettings _options;
+            public byte[] Serialize(Guid data, SerializationContext context) => data.ToByteArray();
+        }
 
-            public ObjectSerializer(JsonSerializerSettings options) => _options = options;
+        private class ObjectSerializer : ISerializer<IReadOnlyDictionary<string, object?>>
+        {
+            private readonly Func<IReadOnlyDictionary<string, object?>, byte[]> _serializer;
 
-            public byte[] Serialize(object data, SerializationContext context)
-            {
-                return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, _options));
-            }
+            public ObjectSerializer(Func<IReadOnlyDictionary<string, object?>, byte[]> serializer) => _serializer = serializer;
+
+            public byte[] Serialize(IReadOnlyDictionary<string, object?> logData, SerializationContext context) => _serializer(logData);
         }
     }
 }
