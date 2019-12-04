@@ -33,6 +33,10 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public IOutput Output { get; set; } = default!;
 
+        public bool IgnoreNull { get; set; }
+
+        public Action<Exception>? ExceptionHandler { get; set; }
+
         public IStateRenderer StateRenderer { get; set; } = new DefaultStateRenderer();
     }
 }

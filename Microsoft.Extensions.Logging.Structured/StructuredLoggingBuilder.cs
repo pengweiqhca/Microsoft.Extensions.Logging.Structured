@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Microsoft.Extensions.Logging.Structured
 {
@@ -68,6 +70,30 @@ namespace Microsoft.Extensions.Logging.Structured
             if (renderer == null) throw new ArgumentNullException(nameof(renderer));
 
             builder.Services.Configure<TOptions>(builder.Alias, options => options.StateRenderer = renderer);
+
+            return builder;
+        }
+
+        public static IStructuredLoggingBuilder<TOptions> AddLayout<TOptions>(this IStructuredLoggingBuilder<TOptions> builder, params ILayout[] layouts)
+            where TOptions : StructuredLoggingOptions, new()
+        {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (layouts == null || layouts.Length == 0) throw new ArgumentException(nameof(layouts));
+
+            foreach (var layout in layouts)
+            {
+                var type = layout.GetType();
+                var name = type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+                if (name == null)
+                {
+                    name = type.Name.ToLower();
+
+                    if (name.EndsWith("Layout", StringComparison.OrdinalIgnoreCase))
+                        name = name.Substring(0, name.Length - 6);
+                }
+
+                builder.Services.Configure<TOptions>(builder.Alias, options => options.Layouts[name] = layout);
+            }
 
             return builder;
         }

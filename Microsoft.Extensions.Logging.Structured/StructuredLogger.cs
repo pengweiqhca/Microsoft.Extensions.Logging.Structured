@@ -31,13 +31,23 @@ namespace Microsoft.Extensions.Logging.Structured
             {
                 foreach (var layout in _options.Layouts)
                 {
-                    dictionary[layout.Key] = layout.Value.Format(loggingEvent);
+                    var value = layout.Value.Format(loggingEvent);
+
+                    if (!_options.IgnoreNull) dictionary[layout.Key] = value;
                 }
+
                 Log(dictionary);
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                try
+                {
+                    _options.ExceptionHandler?.Invoke(ex);
+                }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 

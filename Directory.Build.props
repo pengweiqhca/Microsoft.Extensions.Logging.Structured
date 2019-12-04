@@ -19,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2019.*" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-*" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All"/>
+    <PackageReference Include="Nullable" Version="1.*" PrivateAssets="All" Condition="'$(TargetFramework)' != '$(NETCoreAppVersion3)'" />
   </ItemGroup>
 
 </Project>
