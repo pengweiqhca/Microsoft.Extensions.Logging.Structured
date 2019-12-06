@@ -7,13 +7,12 @@ namespace Microsoft.Extensions.Logging.Structured
     public abstract class StructuredLoggerProvider<TOptions> : ILoggerProvider, ISupportExternalScope
         where TOptions : StructuredLoggingOptions, new()
     {
-
         private readonly TOptions _options;
         public IExternalScopeProvider? ScopeProvider { get; private set; }
         public IOutput Output => _options.Output;
 
         // ReSharper disable once PublicConstructorInAbstractClass
-        public StructuredLoggerProvider(IOptionsSnapshot<TOptions> options)
+        public StructuredLoggerProvider(IOptionsMonitor<TOptions> options)
         {
             var attr = GetType().GetCustomAttribute<ProviderAliasAttribute>();
             if (attr == null) throw new InvalidOperationException("Missing attribute ProviderAliasAttribute");

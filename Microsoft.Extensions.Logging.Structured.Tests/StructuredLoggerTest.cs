@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     .AddLayout("msg",new MessageLayout());
             });
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
             var logger = provider.GetRequiredService<ILogger<StructuredLoggerTest>>();
 
             logger.LogInformation(key);
@@ -64,7 +64,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     .AddLayout(key, new TestLayout());
             });
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
             var logger = provider.GetRequiredService<ILogger<StructuredLoggerTest>>();
             provider.GetRequiredService<ILoggerFactory>().CreateLogger("test").BeginScope(provider);
 
@@ -99,9 +99,9 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 lb.AddStructuredLog<StructuredLoggingOptions>(key);
             });
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
-            Assert.NotNull(provider.GetRequiredService<IOptionsSnapshot<StructuredLoggingOptions>>().Get(key).Layouts);
+            Assert.NotNull(provider.GetRequiredService<IOptionsMonitor<StructuredLoggingOptions>>().Get(key).Layouts);
         }
 
         private class TestLayout : ILayout

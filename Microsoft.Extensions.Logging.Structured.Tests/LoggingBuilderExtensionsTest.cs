@@ -25,9 +25,9 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb => lb.AddConfiguration(configuration.GetSection("Logging"))
                 .AddStructuredLog<StructuredLoggingOptions>("Test", options => options.Layouts["A"] = new DateTimeOffsetLayout()));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
-            var options = provider.GetRequiredService<IOptionsSnapshot<StructuredLoggingOptions>>().Get("Test");
+            var options = provider.GetRequiredService<IOptionsMonitor<StructuredLoggingOptions>>().Get("Test");
 
             Assert.Single(options.Layouts);
             Assert.True(options.Layouts.TryGetValue("A", out var layout));
@@ -46,9 +46,9 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData));
                 }));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
-            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
+            var options = provider.GetRequiredService<IOptionsMonitor<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
 
             Assert.Equal("Abc", options.Topic);
             Assert.True(options.ProducerConfig.EnableDeliveryReports);

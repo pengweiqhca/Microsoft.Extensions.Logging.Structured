@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.Logging.Structured
 
                 typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(ProviderAliasAttribute).GetConstructor(new[] { typeof(string) }), new object[] { alias }));
 
-                var parameterTypes = new[] { typeof(IOptionsSnapshot<TOptions>) };
+                var parameterTypes = new[] { typeof(IOptionsMonitor<TOptions>) };
                 var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, parameterTypes)
                     .GetILGenerator();
 

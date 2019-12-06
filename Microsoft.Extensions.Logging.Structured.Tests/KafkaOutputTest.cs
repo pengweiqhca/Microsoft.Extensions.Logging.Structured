@@ -44,8 +44,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
                     .AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout());
             });
-            using var provider = services.BuildServiceProvider();
-            var options = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
+            using var provider = services.BuildServiceProvider(true);
+            var options = provider.GetRequiredService<IOptionsMonitor<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
             ILogger<KafkaOutputTest> logger = provider.GetRequiredService<ILogger<KafkaOutputTest>>();
             logger.LogInformation("testqqqqpwd");
             logger.LogInformation("idcardqqqq");
@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
             Assert.IsAssignableFrom<StructuredLoggerProvider<KafkaLoggingOptions>>(loggerProvider);
@@ -90,9 +90,9 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
-            Assert.Equal("abc", provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka).Topic);
+            Assert.Equal("abc", provider.GetRequiredService<IOptionsMonitor<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka).Topic);
         }
 
         [Fact]
@@ -107,8 +107,8 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 
-            using var provider = services.BuildServiceProvider();
-            var ss = provider.GetRequiredService<IOptionsSnapshot<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
+            using var provider = services.BuildServiceProvider(true);
+            var ss = provider.GetRequiredService<IOptionsMonitor<KafkaLoggingOptions>>().Get(KafkaConstants.Kafka);
             Assert.Equal(KafkaConstants.Kafka, ss.Topic);
             Assert.Equal("localhost:19092", ss.ProducerConfig.BootstrapServers);
         }

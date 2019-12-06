@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").AddLayout("test", new DateTimeOffsetLayout()));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
             Assert.Throws<ArgumentNullException>(provider.GetRequiredService<ILoggerFactory>);
         }
@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object).AddLayout("test", new DateTimeOffsetLayout()));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
             try
             {
@@ -55,7 +55,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
             Assert.Throws<ArgumentException>(provider.GetRequiredService<ILoggerFactory>);
         }
@@ -69,7 +69,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 .SetOutput(new Mock<IOutput>().Object)
                 .AddLayout("abc", new DateTimeOffsetLayout()));
 
-            using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider(true);
 
             var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
             Assert.IsAssignableFrom<StructuredLoggerProvider<StructuredLoggingOptions>>(loggerProvider);

@@ -16,7 +16,7 @@ namespace MySqlDemo
             using var provider = new ServiceCollection()
                 .AddLogging(lb => lb.AddConsole(logData => JsonSerializer.Serialize(logData))
                     .AddLayout(new DateTimeLayout(), new LogLevelLayout(), new RenderedMessageLayout(), new ExceptionLayout()))
-                .BuildServiceProvider();
+                .BuildServiceProvider(true);
 
             MySqlConnectorLogManager.Provider = new MicrosoftExtensionsLoggingLoggerProvider(provider.GetRequiredService<ILoggerFactory>());
 
