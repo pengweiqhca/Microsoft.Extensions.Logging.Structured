@@ -37,6 +37,8 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public Action<Exception>? ExceptionHandler { get; set; }
 
+        public Func<string, LogLevel, bool>? Filter { get; set; }
+
         public IStateRenderer StateRenderer { get; set; } = new DefaultStateRenderer();
     }
 }

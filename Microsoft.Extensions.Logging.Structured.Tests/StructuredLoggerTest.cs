@@ -104,6 +104,36 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.NotNull(provider.GetRequiredService<IOptionsMonitor<StructuredLoggingOptions>>().Get(key).Layouts);
         }
 
+        [Fact]
+        public void FilterTest()
+        {
+            var key = Guid.NewGuid().ToString("N");
+
+            var services = new ServiceCollection();
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {$"Logging:{key}:Layout:{key}", typeof(DateTimeOffsetLayout).FullName!}
+                }).Build().GetSection("Logging"));
+
+                lb.AddStructuredLog<StructuredLoggingOptions>(key, options => options.Filter = (_, level) => level == LogLevel.Trace).SetOutput(new Mock<IOutput>().Object);
+            });
+
+            services.Configure<LoggerFilterOptions>(options =>
+            {
+                options.Rules.Add(new LoggerFilterRule(null, null, null, (_1, _2, _3) => true));
+            });
+
+            using var provider = services.BuildServiceProvider(true);
+
+            Assert.NotNull(provider.GetRequiredService<IOptionsMonitor<StructuredLoggingOptions>>().Get(key).Filter);
+
+            var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger(key);
+            Assert.True(logger.IsEnabled(LogLevel.Trace));
+            Assert.False(logger.IsEnabled(LogLevel.Error));
+        }
+
         private class TestLayout : ILayout
         {
             public object Format(LoggingEvent loggingEvent) => new LoggingEventWrapper(loggingEvent);

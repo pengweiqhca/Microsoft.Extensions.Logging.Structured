@@ -53,7 +53,13 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public virtual void Log(IReadOnlyDictionary<string, object?> logData) => _options.Output.Write(logData);
 
-        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            var filer = _options.Filter;
+            if (filer == null) return logLevel != LogLevel.None;
+
+            return filer(CategoryName, logLevel);
+        }
 
         public IDisposable BeginScope<TState>(TState state) => ScopeProvider?.Push(state) ?? this;
 
