@@ -1,11 +1,10 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Structured;
 using Microsoft.Extensions.Logging.Structured.Console;
 using MySql.Data.MySqlClient;
 using MySqlConnector.Logging;
+using System.Text.Json;
 
 namespace MySqlDemo
 {
