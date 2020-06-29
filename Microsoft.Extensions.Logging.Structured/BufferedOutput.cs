@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.Logging.Structured
     public abstract class BufferedOutput : IOutput
     {
         private readonly BufferedOutputOptions _options;
-        private ConcurrentQueue<BufferedLog> _queue;
+        private ConcurrentQueue<BufferedLog>? _queue;
         private readonly Timer _timer;
 
         protected BufferedOutput(BufferedOutputOptions options)
@@ -21,9 +21,9 @@ namespace Microsoft.Extensions.Logging.Structured
 
         private void Send(object? state)
         {
-            if (_queue.Count < 1) return;
+            if (_queue == null || _queue.Count < 1) return;
 
-            var queue = Interlocked.Exchange(ref _queue, new ConcurrentQueue<BufferedLog>());
+            var queue = Interlocked.Exchange(ref _queue, new ConcurrentQueue<BufferedLog>())!;
 
             using var cts = new CancellationTokenSource(_options.Timeout);
             try
@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.Logging.Structured
             }
         }
 
-        public void Write(IReadOnlyDictionary<string, object?> logData) => _queue.Enqueue(new BufferedLog(DateTimeOffset.Now, logData));
+        public void Write(IReadOnlyDictionary<string, object?> logData) => _queue?.Enqueue(new BufferedLog(DateTimeOffset.Now, logData));
 
         protected abstract void Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken);
 
@@ -61,6 +61,8 @@ namespace Microsoft.Extensions.Logging.Structured
 
                 Send(null);
             }
+
+            _queue = null;
 
             _disposed = true;
         }
