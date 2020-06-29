@@ -17,8 +17,8 @@ namespace Microsoft.Extensions.Logging
 
             builder.AddConfiguration();
 
-            builder.Services.AddTransient(typeof(ILoggerProvider), StructuredTypeHelper.CreateStructuredLoggerProviderSubclass<TOptions>(alias))
-                .AddTransient(typeof(IConfigureOptions<TOptions>), StructuredTypeHelper.CreateConfigureOptionsType<TOptions>(alias));
+            builder.Services.AddSingleton(typeof(ILoggerProvider), StructuredTypeHelper.CreateStructuredLoggerProviderSubclass<TOptions>(alias))
+                .AddSingleton(typeof(IConfigureOptions<TOptions>), StructuredTypeHelper.CreateConfigureOptionsType<TOptions>(alias));
 
             if (configureAction != null) builder.Services.Configure(alias, configureAction);
 
