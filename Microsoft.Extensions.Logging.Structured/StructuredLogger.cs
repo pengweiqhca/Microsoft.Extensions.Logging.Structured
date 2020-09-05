@@ -31,24 +31,36 @@ namespace Microsoft.Extensions.Logging.Structured
             {
                 foreach (var layout in _options.Layouts)
                 {
-                    var value = layout.Value.Format(loggingEvent);
+					try
+					{
+						var value = layout.Value.Format(loggingEvent);
 
-                    if (!_options.IgnoreNull) dictionary[layout.Key] = value;
+						if (!_options.IgnoreNull) dictionary[layout.Key] = value;
+					}
+					catch (Exception ex)
+					{
+						HandleException(ex);
+					}
                 }
 
                 Log(dictionary);
             }
             catch (Exception ex)
             {
-                try
-                {
-                    _options.ExceptionHandler?.Invoke(ex);
-                }
-                catch
-                {
-                    // ignored
-                }
+                HandleException(ex);
             }
+        }
+        
+        private void HandleException(Exception ex)
+        {
+			try
+			{
+				_options.ExceptionHandler?.Invoke(ex);
+			}
+			catch
+			{
+				// ignored
+			}
         }
 
         public virtual void Log(IReadOnlyDictionary<string, object?> logData) => _options.Output.Write(logData);
