@@ -1,11 +1,14 @@
 ﻿using Confluent.Kafka;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
     public class KafkaLoggingOptions : StructuredLoggingOptions
     {
+        private Func<byte[]> _createMessageKey = () => Encoding.UTF8.GetBytes(Guid.NewGuid().ToString("N"));
+
         public string Topic { get; set; } = default!;
 
         public ProducerConfig ProducerConfig { get; } = new()
@@ -26,5 +29,11 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
         public Func<IReadOnlyDictionary<string, object?>, byte[]> Serializer { get; set; } = default!;
 
         public Action<Error>? KafkaErrorHandler { get; set; }
+
+        public Func<byte[]> CreateMessageKey
+        {
+            get => _createMessageKey;
+            set => _createMessageKey = value ?? throw new ArgumentNullException(nameof(value));
+        }
     }
 }

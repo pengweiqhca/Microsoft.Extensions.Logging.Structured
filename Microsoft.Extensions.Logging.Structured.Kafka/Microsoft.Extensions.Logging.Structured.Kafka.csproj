@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <PackageId>PW.Extensions.Logging.Structured.Kafka</PackageId>
     <Description>Write structured log to kafka.</Description>
     <PackageReleaseNotes>Write structured log to kafka.</PackageReleaseNotes>

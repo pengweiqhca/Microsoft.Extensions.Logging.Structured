@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
     public class KafkaOutput : BufferedOutput
     {
         private readonly KafkaLoggingOptions _options;
-        private readonly IProducer<Guid, IReadOnlyDictionary<string, object?>> _producer;
+        private readonly IProducer<byte[], IReadOnlyDictionary<string, object?>> _producer;
 
         private readonly Headers _headers = new();
 
@@ -28,8 +28,8 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             if (!string.IsNullOrWhiteSpace(_options.ContentType))
                 _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType!));
 
-            var pb = new ProducerBuilder<Guid, IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
-                .SetKeySerializer(new GuiSerializer())
+            var pb = new ProducerBuilder<byte[], IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
+                .SetKeySerializer(Serializers.ByteArray)
                 .SetValueSerializer(new ObjectSerializer(_options.Serializer));
 
             if (_options.KafkaErrorHandler != null)
@@ -44,10 +44,10 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
 
         protected override Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken) =>
             Task.WhenAll(logs
-                .Select(log => _producer.ProduceAsync(_options.Topic, new Message<Guid, IReadOnlyDictionary<string, object?>>
+                .Select(log => _producer.ProduceAsync(_options.Topic, new Message<byte[], IReadOnlyDictionary<string, object?>>
                 {
                     Headers = _headers,
-                    Key = Guid.NewGuid(),
+                    Key = _options.CreateMessageKey(),
                     Timestamp = new Timestamp(log.Now),
                     Value = log.Data,
                 }, cancellationToken)));
@@ -57,11 +57,6 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             base.Dispose(disposing);
 
             _producer.Dispose();
-        }
-
-        private class GuiSerializer : ISerializer<Guid>
-        {
-            public byte[] Serialize(Guid data, SerializationContext context) => data.ToByteArray();
         }
 
         private class ObjectSerializer : ISerializer<IReadOnlyDictionary<string, object?>>
