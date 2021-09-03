@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.Logging.Structured
+﻿namespace Microsoft.Extensions.Logging.Structured
 {
     public interface ILayout
     {
@@ -71,10 +69,5 @@ namespace Microsoft.Extensions.Logging.Structured
 
             return _renderer == null ? loggingEvent.Exception.ToString() : _renderer.Render(loggingEvent.Exception);
         }
-    }
-
-    public interface IExceptionRenderer
-    {
-        string Render(Exception exception);
     }
 }

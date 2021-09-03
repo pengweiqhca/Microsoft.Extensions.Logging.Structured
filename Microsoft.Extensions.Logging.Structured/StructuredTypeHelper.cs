@@ -35,12 +35,13 @@ namespace Microsoft.Extensions.Logging.Structured
 
                 typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(ProviderAliasAttribute).GetConstructor(new[] { typeof(string) }), new object[] { alias }));
 
-                var parameterTypes = new[] { typeof(IOptionsMonitor<TOptions>) };
+                var parameterTypes = new[] { typeof(IOptionsMonitor<TOptions>), typeof(IServiceProvider) };
                 var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, parameterTypes)
                     .GetILGenerator();
 
                 ctor.Emit(OpCodes.Ldarg_0);
                 ctor.Emit(OpCodes.Ldarg_1);
+                ctor.Emit(OpCodes.Ldarg_2);
                 ctor.Emit(OpCodes.Call, typeof(StructuredLoggerProvider<TOptions>).GetConstructor(parameterTypes));
                 ctor.Emit(OpCodes.Ret);
 

@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.Logging.Structured.Console
     {
         private readonly Func<IReadOnlyDictionary<string, object?>, string> _serializer;
 
-        public ConsoleOutput(ConsoleLoggingOptions options) => _serializer = options.Serializer;
+        public ConsoleOutput(ConsoleLoggingOptions options) => _serializer = options.Serializer ?? throw new ArgumentNullException(nameof(options.Serializer));
 
         public void Dispose() { }
 

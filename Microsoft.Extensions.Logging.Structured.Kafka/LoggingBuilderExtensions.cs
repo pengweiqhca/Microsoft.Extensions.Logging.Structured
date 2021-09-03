@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
             var slb = builder.AddStructuredLog<KafkaLoggingOptions>(name)
-                .SetOutput((options, provider) => new KafkaOutput(options));
+                .SetOutput((options, _) => new KafkaOutput(options));
 
             builder.Services.Configure<KafkaLoggingOptions>(name, options =>
             {

@@ -8,16 +8,16 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
     {
         public string Topic { get; set; } = default!;
 
-        public ProducerConfig ProducerConfig { get; } = new ProducerConfig
+        public ProducerConfig ProducerConfig { get; } = new()
         {
             CompressionType = CompressionType.Gzip,
-            MetadataRequestTimeoutMs = 5000,
+            SocketTimeoutMs = 5000,
             TopicMetadataRefreshIntervalMs = 60000,
             QueueBufferingMaxMessages = 10000,
             EnableDeliveryReports = false
         };
 
-        public BufferedOutputOptions BufferedOutputOptions { get; } = new BufferedOutputOptions();
+        public BufferedOutputOptions BufferedOutputOptions { get; } = new();
 
         /// <summary>Such as application/json;charset=UTF-8</summary>
         public string? ContentType { get; set; }

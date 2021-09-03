@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Extensions.Logging.Structured
 {
     public class StructuredLoggingOptions
     {
-        private Dictionary<string, string> _layoutTypes = new Dictionary<string, string>();
-        public Dictionary<string, ILayout> Layouts { get; } = new Dictionary<string, ILayout>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _layoutTypes = new();
+
+        public Dictionary<string, Func<IServiceProvider, ILayout>> Layouts { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         [Obsolete("Used by configuration")]
         public Dictionary<string, string> Layout
@@ -14,9 +16,14 @@ namespace Microsoft.Extensions.Logging.Structured
             get => _layoutTypes;
             set
             {
-                _layoutTypes = value;
+                if (value == default!)
+                {
+                    _layoutTypes = new Dictionary<string, string>();
 
-                if (value == null) return;
+                    return;
+                }
+
+                _layoutTypes = value;
 
                 foreach (var kv in value)
                 {
@@ -24,9 +31,9 @@ namespace Microsoft.Extensions.Logging.Structured
 
                     var type = Type.GetType(kv.Value);
                     if (type == null)
-                        Layouts[kv.Key] = new ConstLayout(kv.Value);
+                        Layouts[kv.Key] = _ => new ConstLayout(kv.Value);
                     else
-                        Layouts[kv.Key] = (ILayout)Activator.CreateInstance(type);
+                        Layouts[kv.Key] = provider => (ILayout)ActivatorUtilities.GetServiceOrCreateInstance(provider, type);
                 }
             }
         }
@@ -40,5 +47,24 @@ namespace Microsoft.Extensions.Logging.Structured
         public Func<string, LogLevel, bool>? Filter { get; set; }
 
         public IStateRenderer StateRenderer { get; set; } = new DefaultStateRenderer();
+
+        public StructuredLoggerOptions CreateLoggerOptions(IServiceProvider provider)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+
+            var options = new StructuredLoggerOptions
+            {
+                Output = Output,
+                IgnoreNull = IgnoreNull,
+                ExceptionHandler = ExceptionHandler,
+                Filter = Filter,
+                StateRenderer = StateRenderer
+            };
+
+            foreach (var kv in Layouts)
+                options.Layouts[kv.Key] = kv.Value(provider);
+
+            return options;
+        }
     }
 }

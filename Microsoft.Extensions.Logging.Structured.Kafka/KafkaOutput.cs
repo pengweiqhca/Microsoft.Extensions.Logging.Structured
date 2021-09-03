@@ -1,9 +1,10 @@
 ﻿using Confluent.Kafka;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
@@ -12,7 +13,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
         private readonly KafkaLoggingOptions _options;
         private readonly IProducer<Guid, IReadOnlyDictionary<string, object?>> _producer;
 
-        private readonly Headers _headers = new Headers();
+        private readonly Headers _headers = new();
 
         public KafkaOutput(KafkaLoggingOptions options) : base(options.BufferedOutputOptions)
         {
@@ -25,7 +26,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             _options = options;
 
             if (!string.IsNullOrWhiteSpace(_options.ContentType))
-                _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType));
+                _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType!));
 
             var pb = new ProducerBuilder<Guid, IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
                 .SetKeySerializer(new GuiSerializer())
@@ -34,23 +35,22 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             if (_options.KafkaErrorHandler != null)
             {
                 var handler = _options.KafkaErrorHandler;
+
                 pb.SetErrorHandler((_, error) => handler(error));
             }
 
             _producer = pb.Build();
         }
 
-        protected override void Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken)
-        {
-            foreach (var log in logs)
-                _producer.ProduceAsync(_options.Topic, new Message<Guid, IReadOnlyDictionary<string, object?>>
+        protected override Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken) =>
+            Task.WhenAll(logs
+                .Select(log => _producer.ProduceAsync(_options.Topic, new Message<Guid, IReadOnlyDictionary<string, object?>>
                 {
                     Headers = _headers,
                     Key = Guid.NewGuid(),
                     Timestamp = new Timestamp(log.Now),
                     Value = log.Data,
-                });
-        }
+                }, cancellationToken)));
 
         protected override void Dispose(bool disposing)
         {

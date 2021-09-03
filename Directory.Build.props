@@ -4,12 +4,12 @@
     <AssemblyOriginatorKeyFile>..\Key.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>$(MSBuildProjectName) ($(TargetFramework))</AssemblyTitle>
     <Authors>Wei Peng</Authors>
-    <Copyright>Copyright © 2019</Copyright>
+    <Copyright>Copyright © 2021</Copyright>
     <DebugSymbols>true</DebugSymbols>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <NoWarn>1591</NoWarn>
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structured</RepositoryUrl>

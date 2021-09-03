@@ -6,6 +6,6 @@ namespace Microsoft.Extensions.Logging.Structured.Console
     public class ConsoleLoggingOptions : StructuredLoggingOptions
     {
         /// <summary>Such as JsonConvert.SerializeObject</summary>
-        public Func<IReadOnlyDictionary<string, object?>, string> Serializer { get; set; } = default!;
+        public Func<IReadOnlyDictionary<string, object?>, string>? Serializer { get; set; }
     }
 }

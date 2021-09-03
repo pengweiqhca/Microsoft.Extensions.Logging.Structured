@@ -7,8 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -26,11 +25,10 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         public void Not_Allow_Null()
         {
             var services = new ServiceCollection();
-#nullable disable
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka(null, "a", "b")));
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", null, "b")));
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", "b", null)));
-#nullable restore
+
+            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka(default!, "a", "b")));
+            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", default!, "b")));
+            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddKafka("a", "b", default!)));
         }
 
         [Fact]
@@ -41,7 +39,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                lb.AddKafka(o => o.Serializer = logData => JsonSerializer.SerializeToUtf8Bytes(logData))
                     .AddLayout("level", new LogLevelLayout()).AddLayout("msg", new RenderedMessageLayout());
             });
             using var provider = services.BuildServiceProvider(true);
@@ -62,7 +60,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                lb.AddKafka(o => o.Serializer = logData => JsonSerializer.SerializeToUtf8Bytes(logData))
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 
@@ -86,7 +84,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 {
                     {$"Logging:{KafkaConstants.Kafka}:Topic", "abc"}
                 }).Build().GetSection("Logging"));
-                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                lb.AddKafka(o => o.Serializer = logData => JsonSerializer.SerializeToUtf8Bytes(logData))
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 
@@ -103,7 +101,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             services.AddLogging(lb =>
             {
                 lb.AddConfiguration(config);
-                lb.AddKafka(o => o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData)))
+                lb.AddKafka(o => o.Serializer = logData => JsonSerializer.SerializeToUtf8Bytes(logData))
                     .AddLayout("test", new DateTimeOffsetLayout());
             });
 

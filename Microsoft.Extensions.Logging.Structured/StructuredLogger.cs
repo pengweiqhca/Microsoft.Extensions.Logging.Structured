@@ -5,12 +5,12 @@ namespace Microsoft.Extensions.Logging.Structured
 {
     public class StructuredLogger : ILogger, IDisposable
     {
-        private readonly StructuredLoggingOptions _options;
+        private readonly StructuredLoggerOptions _options;
         public string CategoryName { get; }
         public IExternalScopeProvider? ScopeProvider { get; }
 
         public StructuredLogger(string categoryName, IExternalScopeProvider? scopeProvider,
-            StructuredLoggingOptions options)
+            StructuredLoggerOptions options)
         {
             _options = options;
             CategoryName = categoryName;
@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.Logging.Structured
                 HandleException(ex);
             }
         }
-        
+
         private void HandleException(Exception ex)
         {
 			try

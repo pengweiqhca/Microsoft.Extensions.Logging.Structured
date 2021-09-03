@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Logging.Structured
 {
@@ -19,20 +21,20 @@ namespace Microsoft.Extensions.Logging.Structured
             _timer = new Timer(Send, null, _options.DueTime, _options.Period);
         }
 
-        private void Send(object? state)
+        private async void Send(object? state)
         {
             if (_queue == null || _queue.Count < 1) return;
 
             var queue = Interlocked.Exchange(ref _queue, new ConcurrentQueue<BufferedLog>())!;
 
-            using var cts = new CancellationTokenSource(_options.Timeout);
+            using var cts = new CancellationTokenSource(_options.FlushTimeout);
             try
             {
-                Write(Dequeue(queue), cts.Token);
+                await Write(Dequeue(queue), cts.Token).ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+                Trace.TraceError(ex.ToString());
             }
         }
 
@@ -46,7 +48,7 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public void Write(IReadOnlyDictionary<string, object?> logData) => _queue?.Enqueue(new BufferedLog(DateTimeOffset.Now, logData));
 
-        protected abstract void Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken);
+        protected abstract Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken);
 
         #region IDisposable Support
         private bool _disposed; // 要检测冗余调用

@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.Logging.Structured.Console
 {
     public static class LoggingBuilderExtensions
     {
-        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder)
+        private static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 

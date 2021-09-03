@@ -3,8 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Structured.Kafka;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -23,7 +22,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             var services = new ServiceCollection();
             services.AddLogging(lb => lb.AddConfiguration(configuration.GetSection("Logging"))
-                .AddStructuredLog<StructuredLoggingOptions>("Test", options => options.Layouts["A"] = new DateTimeOffsetLayout()));
+                .AddStructuredLog<StructuredLoggingOptions>("Test", options => options.Layouts["A"] = _ => new DateTimeOffsetLayout()));
 
             using var provider = services.BuildServiceProvider(true);
 
@@ -31,7 +30,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             Assert.Single(options.Layouts);
             Assert.True(options.Layouts.TryGetValue("A", out var layout));
-            Assert.IsType<DateTimeOffsetLayout>(layout);
+            Assert.IsType<DateTimeOffsetLayout>(layout(provider));
         }
 
         [Fact]
@@ -43,7 +42,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 {
                     o.Topic = "Abc";
                     o.ProducerConfig.EnableDeliveryReports = true;
-                    o.Serializer = logData => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData));
+                    o.Serializer = logData => JsonSerializer.SerializeToUtf8Bytes(logData);
                 }));
 
             using var provider = services.BuildServiceProvider(true);

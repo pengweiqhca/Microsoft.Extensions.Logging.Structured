@@ -7,27 +7,29 @@ namespace Microsoft.Extensions.Logging.Structured
     public abstract class StructuredLoggerProvider<TOptions> : ILoggerProvider, ISupportExternalScope
         where TOptions : StructuredLoggingOptions, new()
     {
-        private readonly TOptions _options;
+        private readonly Lazy<StructuredLoggerOptions> _options;
         public IExternalScopeProvider? ScopeProvider { get; private set; }
-        public IOutput Output => _options.Output;
+        public IOutput Output => _options.Value.Output;
 
         // ReSharper disable once PublicConstructorInAbstractClass
-        public StructuredLoggerProvider(IOptionsMonitor<TOptions> options)
+        public StructuredLoggerProvider(IOptionsMonitor<TOptions> optionsMonitor, IServiceProvider provider)
         {
             var attr = GetType().GetCustomAttribute<ProviderAliasAttribute>();
             if (attr == null) throw new InvalidOperationException("Missing attribute ProviderAliasAttribute");
 
-            _options = options.Get(attr.Alias);
+            var options = optionsMonitor.Get(attr.Alias);
 
-            if (_options.Output == null) throw new ArgumentNullException(nameof(_options.Output));
-            if (_options.StateRenderer == null) throw new ArgumentNullException(nameof(_options.StateRenderer));
+            if (options.Output == null) throw new ArgumentNullException(nameof(options.Output));
+            if (options.StateRenderer == null) throw new ArgumentNullException(nameof(options.StateRenderer));
 
-            if (_options.Layouts == null) throw new ArgumentNullException(nameof(_options.Layouts));
-            if (_options.Layouts.Count == 0) throw new ArgumentException("value is empty", nameof(_options.Layouts));
+            if (options.Layouts == null) throw new ArgumentNullException(nameof(options.Layouts));
+            if (options.Layouts.Count == 0) throw new ArgumentException("value is empty", nameof(options.Layouts));
+
+            _options = new Lazy<StructuredLoggerOptions>(() => options.CreateLoggerOptions(provider));
         }
 
         ILogger ILoggerProvider.CreateLogger(string categoryName) => CreateLogger(categoryName);
-        public StructuredLogger CreateLogger(string categoryName) => new StructuredLogger(categoryName, ScopeProvider, _options);
+        public StructuredLogger CreateLogger(string categoryName) => new StructuredLogger(categoryName, ScopeProvider, _options.Value);
 
         public void SetScopeProvider(IExternalScopeProvider scopeProvider) => ScopeProvider = scopeProvider;
 
@@ -38,9 +40,9 @@ namespace Microsoft.Extensions.Logging.Structured
         {
             if (!_disposed)
             {
-                if (disposing)
+                if (disposing && _options.IsValueCreated)
                 {
-                    _options.Output.Dispose();
+                    _options.Value.Output.Dispose();
                 }
 
                 _disposed = true;
