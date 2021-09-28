@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Microsoft.Extensions.Logging.Structured.Kafka
 {
-    public class KafkaLoggingOptions : StructuredLoggingOptions
+    public class KafkaLoggingOptions : BufferedLoggingOptions<BufferedOutputOptions>
     {
         private Func<byte[]> _createMessageKey = () => Encoding.UTF8.GetBytes(Guid.NewGuid().ToString("N"));
 
@@ -19,8 +19,6 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
             QueueBufferingMaxMessages = 10000,
             EnableDeliveryReports = false
         };
-
-        public BufferedOutputOptions BufferedOutputOptions { get; } = new();
 
         /// <summary>Such as application/json;charset=UTF-8</summary>
         public string? ContentType { get; set; }
