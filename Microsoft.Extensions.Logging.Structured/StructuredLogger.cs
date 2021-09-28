@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.Logging.Structured
         {
             if (!IsEnabled(logLevel)) return;
 
-            var dictionary = new Dictionary<string, object?>();
+            var dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
             var message = _options.StateRenderer.Render(state, exception, formatter);
 
@@ -31,16 +31,16 @@ namespace Microsoft.Extensions.Logging.Structured
             {
                 foreach (var layout in _options.Layouts)
                 {
-					try
-					{
-						var value = layout.Value.Format(loggingEvent);
+                    try
+                    {
+                        var value = layout.Value.Format(loggingEvent);
 
-						if (!_options.IgnoreNull) dictionary[layout.Key] = value;
-					}
-					catch (Exception ex)
-					{
-						HandleException(ex);
-					}
+                        if (!_options.IgnoreNull) dictionary[layout.Key] = value;
+                    }
+                    catch (Exception ex)
+                    {
+                        HandleException(ex);
+                    }
                 }
 
                 Log(dictionary);
@@ -53,14 +53,14 @@ namespace Microsoft.Extensions.Logging.Structured
 
         private void HandleException(Exception ex)
         {
-			try
-			{
-				_options.ExceptionHandler?.Invoke(ex);
-			}
-			catch
-			{
-				// ignored
-			}
+            try
+            {
+                _options.ExceptionHandler?.Invoke(ex);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         public virtual void Log(IReadOnlyDictionary<string, object?> logData) => _options.Output.Write(logData);

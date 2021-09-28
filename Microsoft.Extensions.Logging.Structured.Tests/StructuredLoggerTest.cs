@@ -5,6 +5,8 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.Extensions.Logging.Structured.Tests
@@ -31,7 +33,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                 lb.AddStructuredLog<StructuredLoggingOptions>(key)
                     .SetOutput(moq.Object)
                     .AddLayout(key, new DateTimeOffsetLayout())
-                    .AddLayout("msg",new MessageLayout());
+                    .AddLayout("msg", new MessageLayout());
             });
 
             using var provider = services.BuildServiceProvider(true);
@@ -84,6 +86,40 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
         }
 
         [Fact]
+        public void DateTimeKeyTest()
+        {
+            var list = new List<BufferedLog>();
+            var key = Guid.NewGuid().ToString("N");
+            var now = DateTimeOffset.Now;
+
+            var services = new ServiceCollection();
+            services.AddLogging(lb =>
+            {
+                lb.AddConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    {$"Logging:{key}:LogLevel:Default", "Warning"}
+                }).Build().GetSection("Logging"));
+
+                lb.AddStructuredLog<StructuredLoggingOptions>(key)
+                    .SetOutput(new TestOutput(new BufferedOutputOptions{DateTimeKey = key}, list))
+                    .AddLayout(key, new ConstLayout(now))
+                    .AddLayout("msg", new MessageLayout());
+            });
+
+            using (var provider = services.BuildServiceProvider(true))
+            {
+                var logger = provider.GetRequiredService<ILogger<StructuredLoggerTest>>();
+
+                logger.LogWarning(key);
+            }
+
+            Assert.Single(list);
+
+            Assert.Equal(now, list[0].Now);
+            Assert.Equal(now, list[0].Data[key]);
+        }
+
+        [Fact]
         public void LayoutFromConfiguration()
         {
             var key = Guid.NewGuid().ToString("N");
@@ -122,7 +158,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             services.Configure<LoggerFilterOptions>(options =>
             {
-                options.Rules.Add(new LoggerFilterRule(null, null, null, (_1, _2, _3) => true));
+                options.Rules.Add(new LoggerFilterRule(null, null, null, (_, _, _) => true));
             });
 
             using var provider = services.BuildServiceProvider(true);
@@ -161,6 +197,21 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             public Exception? Exception { get; }
             public string RenderedMessage { get; }
             public IEnumerable<object> Scope { get; }
+        }
+
+        private class TestOutput : BufferedOutput
+        {
+            private readonly IList<BufferedLog> _logs;
+
+            public TestOutput(BufferedOutputOptions options, IList<BufferedLog> logs)
+                : base(options) => _logs = logs;
+
+            protected override Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken)
+            {
+                foreach (var log in logs) _logs.Add(log);
+
+                return Task.CompletedTask;
+            }
         }
     }
 }

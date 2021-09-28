@@ -25,7 +25,7 @@ namespace Microsoft.Extensions.Logging.Structured
         {
             if (_queue == null || _queue.Count < 1) return;
 
-            var queue = Interlocked.Exchange(ref _queue, new ConcurrentQueue<BufferedLog>())!;
+            var queue = Interlocked.Exchange(ref _queue, new ConcurrentQueue<BufferedLog>());
 
             using var cts = new CancellationTokenSource(_options.FlushTimeout);
             try
@@ -46,7 +46,20 @@ namespace Microsoft.Extensions.Logging.Structured
             }
         }
 
-        public void Write(IReadOnlyDictionary<string, object?> logData) => _queue?.Enqueue(new BufferedLog(DateTimeOffset.Now, logData));
+        public void Write(IReadOnlyDictionary<string, object?> logData)
+        {
+            logData.TryGetValue(_options.DateTimeKey, out var time);
+
+            _queue?.Enqueue(new BufferedLog(time switch
+            {
+#if NET6_0_OR_GREATER
+                TimeOnly t => DateTimeOffset.Now.Date + t.ToTimeSpan(),
+#endif
+                DateTime dt => new DateTimeOffset(dt),
+                DateTimeOffset dto => dto,
+                _ => DateTimeOffset.Now,
+            }, logData));
+        }
 
         protected abstract Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken);
 
