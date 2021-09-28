@@ -3,6 +3,7 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\Key.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>$(MSBuildProjectName) ($(TargetFramework))</AssemblyTitle>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
     <Authors>Wei Peng</Authors>
     <Copyright>Copyright © 2021</Copyright>
     <DebugSymbols>true</DebugSymbols>
