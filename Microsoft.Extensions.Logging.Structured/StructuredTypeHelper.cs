@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.Logging.Structured
 
                 typeBuilder.SetParent(typeof(StructuredLoggerProvider<TOptions>));
 
-                typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(ProviderAliasAttribute).GetConstructor(new[] { typeof(string) }), new object[] { alias }));
+                typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(ProviderAliasAttribute).GetConstructor(new[] { typeof(string) })!, new object[] { alias }));
 
                 var parameterTypes = new[] { typeof(IOptionsMonitor<TOptions>), typeof(IServiceProvider) };
                 var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, parameterTypes)
@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.Logging.Structured
                 ctor.Emit(OpCodes.Ldarg_0);
                 ctor.Emit(OpCodes.Ldarg_1);
                 ctor.Emit(OpCodes.Ldarg_2);
-                ctor.Emit(OpCodes.Call, typeof(StructuredLoggerProvider<TOptions>).GetConstructor(parameterTypes));
+                ctor.Emit(OpCodes.Call, typeof(StructuredLoggerProvider<TOptions>).GetConstructor(parameterTypes)!);
                 ctor.Emit(OpCodes.Ret);
 
                 return AliasTypeCache[alias] = typeBuilder.CreateTypeInfo()!.AsType();
@@ -75,8 +75,8 @@ namespace Microsoft.Extensions.Logging.Structured
                 ctor.Emit(OpCodes.Ldstr, alias);
                 ctor.Emit(OpCodes.Ldarg_1);
                 // ReSharper disable once PossibleNullReferenceException
-                ctor.Emit(OpCodes.Callvirt, lpc.GetProperty(nameof(ILoggerProviderConfiguration<TOptions>.Configuration)).GetGetMethod());
-                ctor.Emit(OpCodes.Call, typeof(NamedConfigureFromConfigurationOptions<TOptions>).GetConstructor(new[] { typeof(string), typeof(IConfiguration) }));
+                ctor.Emit(OpCodes.Callvirt, lpc.GetProperty(nameof(ILoggerProviderConfiguration<TOptions>.Configuration))!.GetGetMethod()!);
+                ctor.Emit(OpCodes.Call, typeof(NamedConfigureFromConfigurationOptions<TOptions>).GetConstructor(new[] { typeof(string), typeof(IConfiguration) })!);
                 ctor.Emit(OpCodes.Ret);
 
                 return AliasTypeCache[cacheKey] = typeBuilder.CreateTypeInfo()!.AsType();

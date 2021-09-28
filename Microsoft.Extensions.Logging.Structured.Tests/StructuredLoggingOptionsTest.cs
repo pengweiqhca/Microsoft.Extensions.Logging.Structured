@@ -25,9 +25,9 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             Assert.NotNull(options);
             Assert.Equal(options.Layout.Count, options.Layouts.Count);
             Assert.True(options.Layouts.TryGetValue("A", out var layout));
-            Assert.IsType<DateTimeLayout>(layout(provider));
+            Assert.IsType<DateTimeLayout>(layout!(provider));
             Assert.True(options.Layouts.TryGetValue("B", out layout));
-            Assert.IsType<ConstLayout>(layout(provider));
+            Assert.IsType<ConstLayout>(layout!(provider));
             Assert.Equal("Abc", ((ConstLayout)layout(provider)).Format(default));
         }
     }

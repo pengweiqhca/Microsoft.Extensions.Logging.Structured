@@ -10,12 +10,13 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">True</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <NoWarn>1591</NoWarn>
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structured</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <SignAssembly>True</SignAssembly>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <PackageProjectUrl>https://github.com/pengweiqhca/Microsoft.Extensions.Logging.Structured</PackageProjectUrl>
   </PropertyGroup>
 

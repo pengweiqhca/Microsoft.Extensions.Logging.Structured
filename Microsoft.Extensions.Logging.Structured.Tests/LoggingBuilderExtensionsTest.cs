@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
 
             Assert.Single(options.Layouts);
             Assert.True(options.Layouts.TryGetValue("A", out var layout));
-            Assert.IsType<DateTimeOffsetLayout>(layout(provider));
+            Assert.IsType<DateTimeOffsetLayout>(layout!(provider));
         }
 
         [Fact]

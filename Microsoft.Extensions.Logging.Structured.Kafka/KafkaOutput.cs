@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka
 
         private readonly Headers _headers = new();
 
-        public KafkaOutput(KafkaLoggingOptions options) : base(options.BufferedOutputOptions)
+        public KafkaOutput(KafkaLoggingOptions options) : base(options.OutputOptions)
         {
             if (string.IsNullOrWhiteSpace(options.Topic))
                 throw new ArgumentException("Must not empty", $"{nameof(options)}.{nameof(options.Topic)}");
