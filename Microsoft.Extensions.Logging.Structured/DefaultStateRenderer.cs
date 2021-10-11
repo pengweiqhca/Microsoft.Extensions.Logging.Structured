@@ -14,10 +14,13 @@ namespace Microsoft.Extensions.Logging.Structured
 
         public object? Render<TState>(TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            if (state != null && (state is string || StateCache.GetOrAdd(state.GetType(), _isFormattedType)))
-                return formatter(state, exception);
+            var type = formatter.Method.DeclaringType ?? formatter.Method.ReflectedType;
 
-            return state;
+            if (type != null && _isFormattedType(type) &&
+                (state == null || state is not string && !StateCache.GetOrAdd(state.GetType(), _isFormattedType)))
+                return state;
+
+            return formatter(state, exception);
         }
     }
 }
