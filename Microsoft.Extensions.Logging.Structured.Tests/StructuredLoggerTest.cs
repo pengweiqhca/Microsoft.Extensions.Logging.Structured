@@ -196,7 +196,7 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
             public object? Message { get; }
             public Exception? Exception { get; }
             public string RenderedMessage { get; }
-            public IEnumerable<object> Scope { get; }
+            public IEnumerable<object?> Scope { get; }
         }
 
         private class TestOutput : BufferedOutput
