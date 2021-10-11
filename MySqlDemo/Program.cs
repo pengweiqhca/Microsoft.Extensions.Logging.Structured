@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Structured;
 using Microsoft.Extensions.Logging.Structured.Console;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using MySqlConnector.Logging;
 using System.Text.Json;
 
@@ -10,7 +10,7 @@ namespace MySqlDemo
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             using var provider = new ServiceCollection()
                 .AddLogging(lb => lb.AddConsole(logData => JsonSerializer.Serialize(logData))

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;netstandard2.1;net6</TargetFrameworks>
-    <Version>1.0.2</Version>
+    <Version>1.1.0</Version>
     <PackageId>PW.Extensions.Logging.Structured</PackageId>
     <Description>Write structured log.</Description>
     <PackageReleaseNotes>Write structured log.</PackageReleaseNotes>
