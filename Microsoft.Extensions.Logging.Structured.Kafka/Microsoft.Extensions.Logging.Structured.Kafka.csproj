@@ -13,4 +13,5 @@
 
     <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured\Microsoft.Extensions.Logging.Structured.csproj" />
   </ItemGroup>
+
 </Project>
