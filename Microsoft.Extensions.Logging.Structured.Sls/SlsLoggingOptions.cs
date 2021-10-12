@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.Logging.Structured.Sls
 
         public string? Source { get; set; }
 
-        public Func<object, IReadOnlyDictionary<string, string>> Serializer { get; set; } = default!;
+        public Func<object, IEnumerable<KeyValuePair<string, string?>>> Serializer { get; set; } = default!;
 
         public Func<HttpContent, Task<Error?>> Deserializer { get; set; } = default!;
     }

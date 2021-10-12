@@ -79,14 +79,11 @@ namespace Microsoft.Extensions.Logging.Structured.Sls
             IEnumerable<Log.Types.Content> Convert(IReadOnlyDictionary<string, object?> log)
             {
                 foreach (var kv in _options.Serializer(log))
-                {
-                    if (!string.IsNullOrEmpty(kv.Value))
-                        yield return new Log.Types.Content
-                        {
-                            Key = kv.Key,
-                            Value = kv.Value
-                        };
-                }
+                    yield return new Log.Types.Content
+                    {
+                        Key = kv.Key,
+                        Value = kv.Value ?? ""
+                    };
             }
         }
     }

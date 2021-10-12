@@ -47,13 +47,10 @@ namespace Microsoft.Extensions.Logging.Structured.Tests
                         {
                             var json = (JObject)JToken.FromObject(log);
 
-                            var dic = new Dictionary<string, string>();
+                            var dic = new Dictionary<string, string?>();
 
                             foreach (var kv in json)
-                            {
-                                if (kv.Value != null && kv.Value.Type != JTokenType.Null)
-                                    dic[kv.Key] = kv.Value.ToString();
-                            }
+                                dic[kv.Key] = kv.Value?.ToString();
 
                             return dic;
                         };
