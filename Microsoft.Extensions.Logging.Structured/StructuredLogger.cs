@@ -35,7 +35,8 @@ namespace Microsoft.Extensions.Logging.Structured
                     {
                         var value = layout.Value.Format(loggingEvent);
 
-                        if (!_options.IgnoreNull) dictionary[layout.Key] = value;
+                        if (value != null || !_options.IgnoreNull)
+                            dictionary[layout.Key] = value;
                     }
                     catch (Exception ex)
                     {
