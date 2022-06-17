@@ -53,7 +53,7 @@
 
     public class RenderedMessageLayout : PlainLayout
     {
-        public override string? Format(LoggingEvent loggingEvent) => loggingEvent.RenderedMessage;
+        public override string Format(LoggingEvent loggingEvent) => loggingEvent.RenderedMessage;
     }
 
     public class ExceptionLayout : PlainLayout
