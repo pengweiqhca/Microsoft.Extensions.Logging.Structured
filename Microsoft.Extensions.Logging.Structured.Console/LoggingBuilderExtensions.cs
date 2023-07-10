@@ -2,36 +2,35 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Extensions.Logging.Structured.Console
+namespace Microsoft.Extensions.Logging.Structured.Console;
+
+public static class LoggingBuilderExtensions
 {
-    public static class LoggingBuilderExtensions
+    private static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder)
     {
-        private static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            var slb = builder.AddStructuredLog<ConsoleLoggingOptions>("Console")
-                .SetOutput((options, provider) => new ConsoleOutput(options));
+        var slb = builder.AddStructuredLog<ConsoleLoggingOptions>("Console")
+            .SetOutput((options, provider) => new ConsoleOutput(options));
 
-            return slb;
-        }
+        return slb;
+    }
 
-        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Action<ConsoleLoggingOptions> configureAction)
-        {
-            if (configureAction == null) throw new ArgumentNullException(nameof(configureAction));
+    public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Action<ConsoleLoggingOptions> configureAction)
+    {
+        if (configureAction == null) throw new ArgumentNullException(nameof(configureAction));
 
-            builder.Services.ConfigureAll(configureAction);
+        builder.Services.ConfigureAll(configureAction);
 
-            return builder.AddConsole();
-        }
+        return builder.AddConsole();
+    }
 
-        public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Func<IReadOnlyDictionary<string, object?>, string> serializer)
-        {
-            if (serializer == null) throw new ArgumentNullException(nameof(serializer));
+    public static IStructuredLoggingBuilder<ConsoleLoggingOptions> AddConsole(this ILoggingBuilder builder, Func<IReadOnlyDictionary<string, object?>, string> serializer)
+    {
+        if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
-            builder.Services.ConfigureAll<ConsoleLoggingOptions>(options => options.Serializer = serializer);
+        builder.Services.ConfigureAll<ConsoleLoggingOptions>(options => options.Serializer = serializer);
 
-            return builder.AddConsole();
-        }
+        return builder.AddConsole();
     }
 }

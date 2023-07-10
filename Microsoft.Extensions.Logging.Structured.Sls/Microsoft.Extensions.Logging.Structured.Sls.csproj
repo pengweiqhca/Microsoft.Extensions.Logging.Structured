@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFrameworks>net461;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <Version>1.1.2</Version>
+    <Version>1.2.0</Version>
     <PackageId>PW.Extensions.Logging.Structured.Sls</PackageId>
     <Description>Write structured log to aliyun sls.</Description>
     <PackageReleaseNotes>Write structured log to aliyun sls.</PackageReleaseNotes>
@@ -10,12 +11,12 @@
 
   <ItemGroup>
     <Protobuf Include="Log.proto" />
-    <PackageReference Include="Google.Protobuf" Version="3.21.0" />
 
+    <PackageReference Include="Google.Protobuf" Version="3.23.0"/>
     <PackageReference Include="Grpc.Tools" Version="2.46.3" PrivateAssets="All" />
     <PackageReference Include="Iconic.Zlib.Signed" Version="1.*" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.0" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
 
     <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured\Microsoft.Extensions.Logging.Structured.csproj" />

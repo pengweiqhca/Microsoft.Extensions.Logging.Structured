@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Microsoft.Extensions.Logging.Structured;
+
+public interface IOutput : IDisposable
 {
-    public interface IOutput : IDisposable
-    {
-        void Write(IReadOnlyDictionary<string, object?> logData);
-    }
+    void Write(IReadOnlyDictionary<string, object?> logData);
 }

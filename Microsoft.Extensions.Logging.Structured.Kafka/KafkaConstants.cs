@@ -1,7 +1,6 @@
-﻿namespace Microsoft.Extensions.Logging.Structured.Kafka
+﻿namespace Microsoft.Extensions.Logging.Structured.Kafka;
+
+public static class KafkaConstants
 {
-    public static class KafkaConstants
-    {
-        public const string Kafka = "Kafka";
-    }
+    public const string Kafka = "Kafka";
 }

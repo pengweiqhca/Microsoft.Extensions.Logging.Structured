@@ -6,22 +6,21 @@ using MySqlConnector;
 using MySqlConnector.Logging;
 using System.Text.Json;
 
-namespace MySqlDemo
+namespace MySqlDemo;
+
+internal class Program
 {
-    internal class Program
+    private static void Main()
     {
-        private static void Main()
-        {
-            using var provider = new ServiceCollection()
-                .AddLogging(lb => lb.AddConsole(logData => JsonSerializer.Serialize(logData))
-                    .AddLayout(new DateTimeLayout(), new LogLevelLayout(), new RenderedMessageLayout(), new ExceptionLayout()))
-                .BuildServiceProvider(true);
+        using var provider = new ServiceCollection()
+            .AddLogging(lb => lb.AddConsole(logData => JsonSerializer.Serialize(logData))
+                .AddLayout(new DateTimeLayout(), new LogLevelLayout(), new RenderedMessageLayout(), new ExceptionLayout()))
+            .BuildServiceProvider(true);
 
-            MySqlConnectorLogManager.Provider = new MicrosoftExtensionsLoggingLoggerProvider(provider.GetRequiredService<ILoggerFactory>());
+        MySqlConnectorLogManager.Provider = new MicrosoftExtensionsLoggingLoggerProvider(provider.GetRequiredService<ILoggerFactory>());
 
-            using var connection = new MySqlConnection("server=localhost");
+        using var connection = new MySqlConnection("server=localhost");
 
-            connection.Open();
-        }
+        connection.Open();
     }
 }

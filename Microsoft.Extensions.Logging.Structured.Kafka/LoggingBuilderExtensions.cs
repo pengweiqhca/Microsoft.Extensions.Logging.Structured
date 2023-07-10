@@ -2,48 +2,47 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Microsoft.Extensions.Logging.Structured.Kafka
+namespace Microsoft.Extensions.Logging.Structured.Kafka;
+
+public static class LoggingBuilderExtensions
 {
-    public static class LoggingBuilderExtensions
+    public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string kafkaServer, string topic) => builder.AddKafka(KafkaConstants.Kafka, kafkaServer, topic);
+
+    public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name, string kafkaServer, string topic)
     {
-        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string kafkaServer, string topic) => builder.AddKafka(KafkaConstants.Kafka, kafkaServer, topic);
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+        if (string.IsNullOrWhiteSpace(kafkaServer)) throw new ArgumentNullException(nameof(kafkaServer));
+        if (string.IsNullOrWhiteSpace(topic)) throw new ArgumentNullException(nameof(topic));
 
-        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name, string kafkaServer, string topic)
+        return builder.AddKafka(name, options =>
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrWhiteSpace(kafkaServer)) throw new ArgumentNullException(nameof(kafkaServer));
-            if (string.IsNullOrWhiteSpace(topic)) throw new ArgumentNullException(nameof(topic));
+            options.Topic = topic;
+            options.ProducerConfig.BootstrapServers = kafkaServer;
+        });
+    }
 
-            return builder.AddKafka(name, options =>
-            {
-                options.Topic = topic;
-                options.ProducerConfig.BootstrapServers = kafkaServer;
-            });
-        }
+    public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder,
+        Action<KafkaLoggingOptions>? configureAction = null) =>
+        builder.AddKafka(KafkaConstants.Kafka, configureAction);
 
-        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder,
-            Action<KafkaLoggingOptions>? configureAction = null) =>
-            builder.AddKafka(KafkaConstants.Kafka, configureAction);
+    public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name,
+        Action<KafkaLoggingOptions>? configureAction = null)
+    {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-        public static IStructuredLoggingBuilder<KafkaLoggingOptions> AddKafka(this ILoggingBuilder builder, string name,
-            Action<KafkaLoggingOptions>? configureAction = null)
+        var slb = builder.AddStructuredLog<KafkaLoggingOptions>(name)
+            .SetOutput((options, _) => new KafkaOutput(options));
+
+        builder.Services.Configure<KafkaLoggingOptions>(name, options =>
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+            options.ProducerConfig.CompressionType = CompressionType.Gzip;
+            options.ProducerConfig.EnableDeliveryReports = false;
+        });
 
-            var slb = builder.AddStructuredLog<KafkaLoggingOptions>(name)
-                .SetOutput((options, _) => new KafkaOutput(options));
+        if (configureAction != null) builder.Services.Configure(name, configureAction);
 
-            builder.Services.Configure<KafkaLoggingOptions>(name, options =>
-            {
-                options.ProducerConfig.CompressionType = CompressionType.Gzip;
-                options.ProducerConfig.EnableDeliveryReports = false;
-            });
-
-            if (configureAction != null) builder.Services.Configure(name, configureAction);
-
-            return slb;
-        }
+        return slb;
     }
 }

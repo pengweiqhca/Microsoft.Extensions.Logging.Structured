@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net461;$(TargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net472;$(TargetFrameworks)</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -12,28 +12,19 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
 
-    <PackageReference Include="librdkafka.redist" Version="1.8.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
+    <PackageReference Include="librdkafka.redist" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Moq" Version="4.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Net.Http.Json" Version="3.2.1" />
-    <PackageReference Include="System.Text.Json" Version="4.*" />
+    <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
     <PackageReference Include="xunit" Version="2.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.*" PrivateAssets="all" />
 
     <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured.Kafka\Microsoft.Extensions.Logging.Structured.Kafka.csproj" />
 
     <ProjectReference Include="..\Microsoft.Extensions.Logging.Structured.Sls\Microsoft.Extensions.Logging.Structured.Sls.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.*" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.*" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.*" />
   </ItemGroup>
 
 </Project>

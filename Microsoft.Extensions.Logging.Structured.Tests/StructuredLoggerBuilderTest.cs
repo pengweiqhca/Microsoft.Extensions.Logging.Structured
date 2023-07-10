@@ -4,77 +4,76 @@ using System;
 using System.Reflection;
 using Xunit;
 
-namespace Microsoft.Extensions.Logging.Structured.Tests
+namespace Microsoft.Extensions.Logging.Structured.Tests;
+
+public class StructuredLoggerBuilderTest
 {
-    public class StructuredLoggerBuilderTest
+    [Fact]
+    public void Alias_Not_Allow_Null_Or_Empty()
     {
-        [Fact]
-        public void Alias_Not_Allow_Null_Or_Empty()
+        var services = new ServiceCollection();
+
+        Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>(null!)));
+        Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("")));
+    }
+
+    [Fact]
+    public void Output_Not_Allow_Null()
+    {
+        var services = new ServiceCollection();
+
+        services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").AddLayout("test", new DateTimeOffsetLayout()));
+
+        using var provider = services.BuildServiceProvider(true);
+
+        Assert.Throws<ArgumentNullException>(provider.GetRequiredService<ILoggerFactory>);
+    }
+
+    [Fact]
+    public void Renderer_Not_Allow_Null()
+    {
+        var services = new ServiceCollection();
+
+        services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object).AddLayout("test", new DateTimeOffsetLayout()));
+
+        using var provider = services.BuildServiceProvider(true);
+
+        try
         {
-            var services = new ServiceCollection();
-
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>(null!)));
-            Assert.Throws<ArgumentNullException>(() => services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("")));
+            provider.GetRequiredService<ILoggerFactory>();
         }
-
-        [Fact]
-        public void Output_Not_Allow_Null()
+        catch (TargetInvocationException e)
         {
-            var services = new ServiceCollection();
-
-            services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").AddLayout("test", new DateTimeOffsetLayout()));
-
-            using var provider = services.BuildServiceProvider(true);
-
-            Assert.Throws<ArgumentNullException>(provider.GetRequiredService<ILoggerFactory>);
+            Assert.IsType<ArgumentNullException>(e.InnerException);
         }
+    }
 
-        [Fact]
-        public void Renderer_Not_Allow_Null()
-        {
-            var services = new ServiceCollection();
+    [Fact]
+    public void Layouts_Not_Allow_Null_Or_Empty()
+    {
+        var services = new ServiceCollection();
 
-            services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object).AddLayout("test", new DateTimeOffsetLayout()));
+        services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object));
 
-            using var provider = services.BuildServiceProvider(true);
+        using var provider = services.BuildServiceProvider(true);
 
-            try
-            {
-                provider.GetRequiredService<ILoggerFactory>();
-            }
-            catch (TargetInvocationException e)
-            {
-                Assert.IsType<ArgumentNullException>(e.InnerException);
-            }
-        }
+        Assert.Throws<ArgumentException>(provider.GetRequiredService<ILoggerFactory>);
+    }
 
-        [Fact]
-        public void Layouts_Not_Allow_Null_Or_Empty()
-        {
-            var services = new ServiceCollection();
+    [Fact]
+    public void AddOutput()
+    {
+        var services = new ServiceCollection();
 
-            services.AddLogging(factory => factory.AddStructuredLog<StructuredLoggingOptions>("test").SetOutput(new Mock<IOutput>().Object));
+        services.AddLogging(lb => lb.AddStructuredLog<StructuredLoggingOptions>("test")
+            .SetOutput(new Mock<IOutput>().Object)
+            .AddLayout("abc", new DateTimeOffsetLayout()));
 
-            using var provider = services.BuildServiceProvider(true);
+        using var provider = services.BuildServiceProvider(true);
 
-            Assert.Throws<ArgumentException>(provider.GetRequiredService<ILoggerFactory>);
-        }
+        var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
+        Assert.IsAssignableFrom<StructuredLoggerProvider<StructuredLoggingOptions>>(loggerProvider);
 
-        [Fact]
-        public void AddOutput()
-        {
-            var services = new ServiceCollection();
-
-            services.AddLogging(lb => lb.AddStructuredLog<StructuredLoggingOptions>("test")
-                .SetOutput(new Mock<IOutput>().Object)
-                .AddLayout("abc", new DateTimeOffsetLayout()));
-
-            using var provider = services.BuildServiceProvider(true);
-
-            var loggerProvider = provider.GetRequiredService<ILoggerProvider>();
-            Assert.IsAssignableFrom<StructuredLoggerProvider<StructuredLoggingOptions>>(loggerProvider);
-
-            Assert.Equal("test", loggerProvider.GetType().GetCustomAttribute<ProviderAliasAttribute>()?.Alias);
-        }
+        Assert.Equal("test", loggerProvider.GetType().GetCustomAttribute<ProviderAliasAttribute>()?.Alias);
     }
 }

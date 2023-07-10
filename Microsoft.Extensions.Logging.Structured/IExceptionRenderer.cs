@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Microsoft.Extensions.Logging.Structured;
+
+public interface IExceptionRenderer
 {
-    public interface IExceptionRenderer
-    {
-        string Render(Exception exception);
-    }
+    string Render(Exception exception);
 }

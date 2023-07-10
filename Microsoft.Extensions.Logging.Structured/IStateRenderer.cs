@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Microsoft.Extensions.Logging.Structured
+namespace Microsoft.Extensions.Logging.Structured;
+
+public interface IStateRenderer
 {
-    public interface IStateRenderer
-    {
-        object? Render<TState>(TState state, Exception? exception, Func<TState, Exception?, string> formatter);
-    }
+    object? Render<TState>(TState state, Exception? exception, Func<TState, Exception?, string> formatter);
 }
