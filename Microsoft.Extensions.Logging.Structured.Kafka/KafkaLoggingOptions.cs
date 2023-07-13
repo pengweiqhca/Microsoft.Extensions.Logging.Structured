@@ -24,7 +24,7 @@ public class KafkaLoggingOptions : BufferedLoggingOptions<BufferedOutputOptions>
     public string? ContentType { get; set; }
 
     /// <summary>Such as Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData))</summary>
-    public Func<IReadOnlyDictionary<string, object?>, byte[]> Serializer { get; set; } = default!;
+    public Func<IReadOnlyDictionary<string, object?>, byte[]>? Serializer { get; set; }
 
     /// <summary>Such as Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(logData))</summary>
     public Func<IEnumerable<IReadOnlyDictionary<string, object?>>, byte[]>? BatchSerializer { get; set; }

@@ -18,17 +18,24 @@ public class KafkaOutput : BufferedOutput
     public KafkaOutput(KafkaLoggingOptions options) : base(options.OutputOptions)
     {
         if (string.IsNullOrWhiteSpace(options.Topic))
-            throw new ArgumentException("Must not empty", $"{nameof(options)}.{nameof(options.Topic)}");
-
-        if (options.Serializer == null)
-            throw new ArgumentException("Must not null", $"{nameof(options)}.{nameof(options.Serializer)}");
+            throw new ArgumentException("Must not be null or white space.", $"{nameof(options)}.{nameof(options.Topic)}");
 
         _options = options;
 
         if (!string.IsNullOrWhiteSpace(_options.ContentType))
             _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType!));
 
-        if (_options.BatchSerializer == null)
+        if (_options.BatchSerializer != null)
+        {
+            var pb = new ProducerBuilder<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.ProducerConfig)
+                .SetKeySerializer(Serializers.ByteArray)
+                .SetValueSerializer(new ObjectSerializer<IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.BatchSerializer));
+
+            if (_options.KafkaErrorHandler is { } handler) pb.SetErrorHandler((_, error) => handler(error));
+
+            _producer = pb.Build();
+        }
+        else if (_options.Serializer != null)
         {
             var pb = new ProducerBuilder<byte[], IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
                 .SetKeySerializer(Serializers.ByteArray)
@@ -39,15 +46,7 @@ public class KafkaOutput : BufferedOutput
             _producer = pb.Build();
         }
         else
-        {
-            var pb = new ProducerBuilder<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.ProducerConfig)
-                .SetKeySerializer(Serializers.ByteArray)
-                .SetValueSerializer(new ObjectSerializer<IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.BatchSerializer));
-
-            if (_options.KafkaErrorHandler is { } handler) pb.SetErrorHandler((_, error) => handler(error));
-
-            _producer = pb.Build();
-        }
+            throw new ArgumentException("Serializer or BatchSerializer cannot be both null.");
     }
 
     // IProducer<byte[], IReadOnlyDictionary<string, object?>>
