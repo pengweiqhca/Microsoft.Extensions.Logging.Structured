@@ -11,11 +11,11 @@ namespace Microsoft.Extensions.Logging.Structured.Kafka;
 public class KafkaOutput : BufferedOutput
 {
     private readonly KafkaLoggingOptions _options;
-    private readonly IDisposable _producer;
+    private readonly IProducer<byte[], IReadOnlyDictionary<string, object?>> _producer;
 
     private readonly Headers _headers = new();
 
-    public KafkaOutput(KafkaLoggingOptions options) : base(options.OutputOptions)
+    public KafkaOutput(KafkaLoggingOptions options, Func<IReadOnlyDictionary<string, object?>, byte[]> serializer) : base(options.OutputOptions)
     {
         if (string.IsNullOrWhiteSpace(options.Topic))
             throw new ArgumentException("Must not be null or white space.", $"{nameof(options)}.{nameof(options.Topic)}");
@@ -25,62 +25,87 @@ public class KafkaOutput : BufferedOutput
         if (!string.IsNullOrWhiteSpace(_options.ContentType))
             _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType!));
 
-        if (_options.BatchSerializer != null)
-        {
-            var pb = new ProducerBuilder<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.ProducerConfig)
-                .SetKeySerializer(Serializers.ByteArray)
-                .SetValueSerializer(new ObjectSerializer<IEnumerable<IReadOnlyDictionary<string, object?>>>(_options.BatchSerializer));
-
-            if (_options.KafkaErrorHandler is { } handler) pb.SetErrorHandler((_, error) => handler(error));
-
-            _producer = pb.Build();
-        }
-        else if (_options.Serializer != null)
-        {
-            var pb = new ProducerBuilder<byte[], IReadOnlyDictionary<string, object?>>(_options.ProducerConfig)
-                .SetKeySerializer(Serializers.ByteArray)
-                .SetValueSerializer(new ObjectSerializer<IReadOnlyDictionary<string, object?>>(_options.Serializer));
-
-            if (_options.KafkaErrorHandler is { } handler) pb.SetErrorHandler((_, error) => handler(error));
-
-            _producer = pb.Build();
-        }
-        else
-            throw new ArgumentException("Serializer or BatchSerializer cannot be both null.");
+        _producer = ObjectSerializer<IReadOnlyDictionary<string, object?>>.BuildProducer(_options, serializer);
     }
 
     // IProducer<byte[], IReadOnlyDictionary<string, object?>>
     protected override Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken) =>
-        _producer is IProducer<byte[], IReadOnlyDictionary<string, object?>> producer
-            ? Task.WhenAll(logs
-                .Select(log => producer.ProduceAsync(_options.Topic, new Message<byte[], IReadOnlyDictionary<string, object?>>
-                {
-                    Headers = _headers,
-                    Key = _options.CreateMessageKey(),
-                    Timestamp = new Timestamp(log.Now),
-                    Value = log.Data,
-                }, cancellationToken)))
-            : ((IProducer<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>)_producer)
-            .ProduceAsync(_options.Topic, new Message<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>
+        Task.WhenAll(logs
+            .Select(log => _producer.ProduceAsync(_options.Topic, new Message<byte[], IReadOnlyDictionary<string, object?>>
             {
                 Headers = _headers,
                 Key = _options.CreateMessageKey(),
-                Value = logs.Select(log => log.Data),
-            }, cancellationToken);
+                Timestamp = new Timestamp(log.Now),
+                Value = log.Data,
+            }, cancellationToken)));
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
 
+        _producer.Flush();
+
         _producer.Dispose();
     }
+}
 
-    private class ObjectSerializer<T> : ISerializer<T>
+public class KafkaBatchOutput : BufferedOutput
+{
+    private readonly KafkaLoggingOptions _options;
+    private readonly IProducer<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>> _producer;
+
+    private readonly Headers _headers = new();
+
+    public KafkaBatchOutput(KafkaLoggingOptions options, Func<IEnumerable<IReadOnlyDictionary<string, object?>>, byte[]> serializer) : base(options.OutputOptions)
     {
-        private readonly Func<T, byte[]> _serializer;
+        if (string.IsNullOrWhiteSpace(options.Topic))
+            throw new ArgumentException("Must not be null or white space.", $"{nameof(options)}.{nameof(options.Topic)}");
 
-        public ObjectSerializer(Func<T, byte[]> serializer) => _serializer = serializer;
+        _options = options;
 
-        public byte[] Serialize(T logData, SerializationContext context) => _serializer(logData);
+        if (!string.IsNullOrWhiteSpace(_options.ContentType))
+            _headers.Add("Content-Type", Encoding.UTF8.GetBytes(_options.ContentType!));
+
+        _producer = ObjectSerializer<IEnumerable<IReadOnlyDictionary<string, object?>>>.BuildProducer(_options, serializer);
+    }
+
+    // IProducer<byte[], IReadOnlyDictionary<string, object?>>
+    protected override Task Write(IEnumerable<BufferedLog> logs, CancellationToken cancellationToken) =>
+        _producer.ProduceAsync(_options.Topic, new Message<byte[], IEnumerable<IReadOnlyDictionary<string, object?>>>
+        {
+            Headers = _headers,
+            Key = _options.CreateMessageKey(),
+            Value = logs.Select(log => log.Data),
+        }, cancellationToken);
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+
+        _producer.Flush();
+
+        _producer.Dispose();
+    }
+}
+
+file class ObjectSerializer<T> : ISerializer<T>
+{
+    private readonly Func<T, byte[]> _serializer;
+
+    private ObjectSerializer(Func<T, byte[]> serializer) => _serializer = serializer;
+
+    public byte[] Serialize(T logData, SerializationContext context) => _serializer(logData);
+
+    public static IProducer<byte[], T> BuildProducer(KafkaLoggingOptions options, Func<T, byte[]> serializer)
+    {
+        var pb = new ProducerBuilder<byte[], T>(options.ProducerConfig)
+            .SetKeySerializer(Serializers.ByteArray)
+            .SetValueSerializer(new ObjectSerializer<T>(serializer));
+
+        if (options.KafkaErrorHandler is { } errorHandler) pb.SetErrorHandler((_, error) => errorHandler(error));
+
+        if (options.KafkaLogHandler is { } logHandler) pb.SetLogHandler((_, log) => logHandler(log));
+
+        return pb.Build();
     }
 }

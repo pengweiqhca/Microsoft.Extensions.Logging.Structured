@@ -33,7 +33,14 @@ public static class LoggingBuilderExtensions
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
         var slb = builder.AddStructuredLog<KafkaLoggingOptions>(name)
-            .SetOutput((options, _) => new KafkaOutput(options));
+            .SetOutput((options, _) =>
+            {
+                if (options.BatchSerializer != null) return new KafkaBatchOutput(options, options.BatchSerializer);
+
+                if (options.Serializer != null) return new KafkaOutput(options, options.Serializer);
+
+                throw new ArgumentException("Serializer or BatchSerializer cannot be both null.");
+            });
 
         builder.Services.Configure<KafkaLoggingOptions>(name, options =>
         {

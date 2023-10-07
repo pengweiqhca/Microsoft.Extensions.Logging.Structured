@@ -31,6 +31,8 @@ public class KafkaLoggingOptions : BufferedLoggingOptions<BufferedOutputOptions>
 
     public Action<Error>? KafkaErrorHandler { get; set; }
 
+    public Action<LogMessage>? KafkaLogHandler { get; set; }
+
     public Func<byte[]> CreateMessageKey
     {
         get => _createMessageKey;
